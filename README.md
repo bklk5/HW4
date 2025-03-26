@@ -1,1 +1,4 @@
-# CSE360TeamProject3
+# Links for screencasts: 
+
+Weekly meeting:
+
