@@ -95,18 +95,18 @@ public class UserLoginPage {
             				
             			}
             			else if (studentRole) {
-            				new StudentHomePage(databaseHelper).show(primaryStage, user);
+            				// new StudentHomePage(databaseHelper).show(primaryStage, user);
             				new HomePage(databaseHelper).show(primaryStage, user);
             			}
             			else if (instructorRole) {
-            				new InstructorHomePage(databaseHelper).show(primaryStage);
+            				new HomePage(databaseHelper).show(primaryStage, user);
             				
             			}
             			else if (staffRole) {
-            				new StaffHomePage(databaseHelper).show(primaryStage);
+            				new HomePage(databaseHelper).show(primaryStage, user);
             			}
             			else if (reviewerRole) {
-            				new ReviewerHomePage(databaseHelper).show(primaryStage);
+            				new HomePage(databaseHelper).show(primaryStage, user);
             				}
             			
             		}

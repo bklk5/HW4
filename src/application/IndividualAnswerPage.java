@@ -112,7 +112,7 @@ public class IndividualAnswerPage {
 		HBox buttonContainer = new HBox();
 		buttonContainer.setAlignment(javafx.geometry.Pos.TOP_RIGHT);
         
-        if (user.getUserName().equals(answer.getAuthor())) {
+        if (user.getUserName().equals(answer.getAuthor()) || user.isReviewer()) {
         	buttonContainer.getChildren().addAll(updateButton, deleteButton);
         }
         
