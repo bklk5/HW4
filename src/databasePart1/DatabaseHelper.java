@@ -1080,6 +1080,35 @@ public class DatabaseHelper {
 		        return new ArrayList<>(); // Return empty list instead of null
 		    }
 		}
+		
+		public List<Review> getAllReviews(String username) throws SQLException {
+		    String query = "SELECT * FROM Reviews WHERE author = ?";
+		    List<Review> reviews = new ArrayList<>();
+		    
+		    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+		        pstmt.setString(1, username);
+		        
+		        ResultSet rs = pstmt.executeQuery();
+		        
+		        while (rs.next()) {
+		            Review review = new Review(
+		                rs.getInt("question_id"), 
+		                rs.getString("author"), 
+		                rs.getString("content")
+		            );
+		            
+		            review.setId(rs.getInt("id"));
+		            reviews.add(review);
+		        }
+		        
+		        return reviews;
+		    }
+		    catch (SQLException e) {
+		        System.err.println("SQL Error fetching reviews: " + e.getMessage());
+		        e.printStackTrace();
+		        return new ArrayList<>(); // Return empty list instead of null
+		    }
+		}
 		// - - - - - - - - - - - - - - - REVIEWS METHODS END - - - - - - - - - - - - - - - - -
 
 

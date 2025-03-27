@@ -81,7 +81,18 @@ public class IndividualReviewPage {
         System.out.println("Content: " + review.getContent());
         System.out.println("Author: " + review.getAuthor());
         
-        Label header = new Label(review.getAuthor() + "'s Post");
+        Question q = new Question("", "", "", "");
+		
+		try {
+			q = databaseHelper.readQuestionById(question.getId());
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+        
+        Label title = new Label(q.getTitle());
+        Label author = new Label("By : " + q.getAuthor());
+        Label header = new Label("Your Review: ");
         Button updateButton = new Button("Update review");
         Button deleteButton = new Button("Delete review");
 		Label contentText = new Label(review.getContent());
@@ -126,7 +137,7 @@ public class IndividualReviewPage {
         	buttonContainer.getChildren().addAll(updateButton, deleteButton);
         }
         
-        VBox centerContent = new VBox(10, header, buttonContainer, contentText);
+        VBox centerContent = new VBox(10, buttonContainer, title, author, header, contentText);
         centerContent.setStyle("-fx-padding: 20px;");
 
         BorderPane borderPane = new BorderPane();

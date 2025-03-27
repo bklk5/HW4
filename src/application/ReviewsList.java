@@ -1,6 +1,7 @@
 package application;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import databasePart1.DatabaseHelper;
 import javafx.collections.FXCollections;
@@ -8,6 +9,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
@@ -63,57 +65,70 @@ public class ReviewsList {
         
         // - - - - - - - - - - - - - - - CONTENT - - - - - - - - - - - - - - 
     	// Set up listview to show list of question titles
-    	ObservableList<Question> items = FXCollections.observableArrayList();
-    	ListView<Question> listView = new ListView<>(items);
-    	
-    	QuestionsList questionList = new QuestionsList();
+        ObservableList<Review> items = FXCollections.observableArrayList();
+		ListView<Review> listView = new ListView<>(items);
 
-        
-        try {
-            databaseHelper.connectToDatabase(); // Connect to the database
+		try {
+		    databaseHelper.connectToDatabase(); // Connect to the database
 
-            if (databaseHelper.isDatabaseEmpty()) {
-                new FirstPage(databaseHelper).show(primaryStage);
-                return; // Exit early if database is empty
-            } else {
-            	
-            	// Add question titles to listview 
-            	questionList.setQuestions(databaseHelper.getQuestionTitles());
-                items.addAll(questionList.getQuestions()); 
-
-            }
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
+		    if (databaseHelper.isDatabaseEmpty()) {
+		        new FirstPage(databaseHelper).show(primaryStage);
+		        return; // Exit early if database is empty
+		    } else {
+		        // Get reviews directly from the database and add to the observable list
+		        List<Review> reviews = databaseHelper.getAllReviews(user.getUserName());
+		        items.addAll(reviews);
+		    }
+		} catch (SQLException e) {
+		    System.out.println(e.getMessage());
+		}
         
         // Set custom cell factory to display questions in a readable way
-        listView.setCellFactory(param -> new javafx.scene.control.ListCell<Question>() {
+		listView.setCellFactory(param -> new ListCell<Review>() {
             @Override
-            protected void updateItem(Question q, boolean empty) {
-                super.updateItem(q, empty);
-                if (empty || q == null) {
+            protected void updateItem(Review review, boolean empty) {
+                super.updateItem(review, empty);
+                
+                if (empty || review == null) {
                     setText(null);
+                    setGraphic(null);
                 } else {
-                    setText("Title: " + q.getTitle());
+                    // set question for each review
+            		Question q = new Question("", "", "", "");
+            		
+                	try {
+                		q = databaseHelper.readQuestionById(review.getQuestionId());
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+                	
+                    Label contentLabel = new Label("Question : " + q.getTitle());
+                    contentLabel.setWrapText(true); // Enable text wrapping
+                    
+                    VBox cellContent = new VBox(10,contentLabel);
+                    setGraphic(cellContent);
                 }
             }
-        });
-
-        // Create Button to Navigate to Questions & Answers Page
-        Button questionButton = new Button("Ask a question");
-        questionButton.setOnAction(a -> {
-        	new CreateQuestion(databaseHelper).show(primaryStage, user);
         });
         
         // Handle button for listview upon clicking
         listView.setOnMouseClicked(a -> {
         	if (a.getClickCount() >= 2) {
-                Question selectedItem = listView.getSelectionModel().getSelectedItem();
-                
+                Review selectedItem = listView.getSelectionModel().getSelectedItem();
+        		Question q = new Question("", "", "", "");
+        		
+				try {
+					q = databaseHelper.readQuestionById(selectedItem.getQuestionId());
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+
                 if(selectedItem != null) {
                 	try {
                 		// take person to page of question
-						new IndividualQuestionPage(databaseHelper).show(primaryStage, user, selectedItem);
+						new IndividualReviewPage(databaseHelper).show(primaryStage, user, q, selectedItem);
+                		System.out.println("clicked");
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}
@@ -126,7 +141,7 @@ public class ReviewsList {
         
 
         // - - - - - - - - - - - - - - - GENERAL LAYOUT FOR PAGES - - - - - - - - - - - - - - 
-        VBox centerContent = new VBox(10, new Label("Questions"), questionButton, listView);
+        VBox centerContent = new VBox(10, new Label("Reviews"), listView);
         centerContent.setStyle("-fx-padding: 20px;");
 
         BorderPane borderPane = new BorderPane();
