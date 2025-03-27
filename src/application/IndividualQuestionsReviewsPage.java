@@ -20,11 +20,11 @@ import databasePart1.*;
  * The SetupAdmin class handles the setup process for creating an administrator account.
  * This is intended to be used by the first user to initialize the system with admin credentials.
  */
-public class IndividualQuestionPage {
+public class IndividualQuestionsReviewsPage {
 	
     private final DatabaseHelper databaseHelper;
 
-    public IndividualQuestionPage(DatabaseHelper databaseHelper) {
+    public IndividualQuestionsReviewsPage(DatabaseHelper databaseHelper) {
         this.databaseHelper = databaseHelper;
     }
 
@@ -74,15 +74,16 @@ public class IndividualQuestionPage {
 		Label authorText = new Label(question.getAuthor());
 		Label contentText = new Label(question.getContent());
 		Button messageButton = new Button("Send Message");
-		Button answerButton = new Button("Answer Question");
-		Button reviewsButton = new Button("Reviews");
+		Button reviewButton = new Button("Review Question");
+		Button questionsButton = new Button("Questions");
 		
-		reviewsButton.setOnAction(a -> {
+		questionsButton.setOnAction(a -> {
 			try {
-				new IndividualQuestionsReviewsPage(databaseHelper).show(primaryStage, user, question);
+				new IndividualQuestionPage(databaseHelper).show(primaryStage, user, question);
 			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}
+
 		});
 		
 		updateButton.setOnAction(a -> {
@@ -114,92 +115,65 @@ public class IndividualQuestionPage {
 			new CreateMessage(databaseHelper).show(primaryStage, user, question);
 		});
 		
-		answerButton.setOnAction(a -> {
-			new CreateAnswer(databaseHelper).show(primaryStage, user, question);
+		reviewButton.setOnAction(a -> {
+			new CreateReview(databaseHelper).show(primaryStage, user, question);
 		});
 		
-		ObservableList<Answer> items = FXCollections.observableArrayList();
-    	ListView<Answer> listView = new ListView<>(items);
-    	
-    	AnswersList aList = new AnswersList();
-    	
-        try {
-            databaseHelper.connectToDatabase(); // Connect to the database
+		ObservableList<Review> items = FXCollections.observableArrayList();
+		ListView<Review> listView = new ListView<>(items);
 
-            if (databaseHelper.isDatabaseEmpty()) {
-                new FirstPage(databaseHelper).show(primaryStage);
-                return; // Exit early if database is empty
-            } else {
-            	
-            	// Add answer titles to listview 
-            	aList.setAnswers(databaseHelper.readAnswersByQuestionId(question.getId()));
-                items.addAll(aList.getAnswers()); 
+		try {
+		    databaseHelper.connectToDatabase(); // Connect to the database
 
-            }
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
+		    if (databaseHelper.isDatabaseEmpty()) {
+		        new FirstPage(databaseHelper).show(primaryStage);
+		        return; // Exit early if database is empty
+		    } else {
+		        // Get reviews directly from the database and add to the observable list
+		        List<Review> reviews = databaseHelper.getReviewsByQuestionId(question.getId());
+		        items.addAll(reviews);
+		    }
+		} catch (SQLException e) {
+		    System.out.println(e.getMessage());
+		}
     	
-//    	System.out.println(question.getId());
-//    	aList.setAnswers(databaseHelper.readAnswersByQuestionId(question.getId()));
-//    	items.addAll(aList.getAnswers());
         
-        // Set custom cell factory to display questions in a readable way
-        listView.setCellFactory(param -> new javafx.scene.control.ListCell<Answer>() {
-            @Override
-            protected void updateItem(Answer a, boolean empty) {
-                super.updateItem(a, empty);
-                
-        		ToggleButton upvoteButton = new ToggleButton("⇧"); 
-        		Label voteCount = new Label(); 
-        		
-        		VBox voteBox = new VBox(10, upvoteButton, voteCount); 
-        		
-                upvoteButton.setOnAction(b -> {
-        			databaseHelper.incrementUpvote(a.getId());
-        			int votes = databaseHelper.getUpvote(a.getId());
-        			a.setUpvotes(votes+1);
-        			voteCount.setText(String.valueOf(a.getUpvotes()));
-        			//update the gui to reflect the new changes 
-        			try {
-						items.setAll(databaseHelper.readAnswersByQuestionId(question.getId()));
-					} catch (SQLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-        			
-        			
-        		});
-                
-                
-                
-                if (empty || a == null) {
-                    setText(null);
-                } else {
-                	voteCount.setText(String.valueOf(databaseHelper.getUpvote(a.getId())));
-                    setText("Answer: " + a.getContent());
-                    HBox voteSpacing = new HBox(10, voteBox);
-                    setGraphic(voteSpacing);
-                    
-                }
-            }
-        });
     	
     	// Handle button for listview upon clicking on individual list element 
         listView.setOnMouseClicked(a -> {
         	if (a.getClickCount() >= 2) {
-                Answer selectedItem = listView.getSelectionModel().getSelectedItem();
+                Review selectedItem = listView.getSelectionModel().getSelectedItem();
                 
                 if(selectedItem != null) {
                 	try {
                 		// take person to page of question
-						new IndividualAnswerPage(databaseHelper).show(primaryStage, user, question, selectedItem);
+						new IndividualReviewPage(databaseHelper).show(primaryStage, user, question, selectedItem);
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}
                 }
         	}
         });
+        
+        listView.setCellFactory(param -> new ListCell<Review>() {
+            @Override
+            protected void updateItem(Review review, boolean empty) {
+                super.updateItem(review, empty);
+                
+                if (empty || review == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    // Create a custom layout for each cell
+                    Label contentLabel = new Label(review.getAuthor() + " said: " + review.getContent());
+                    contentLabel.setWrapText(true); // Enable text wrapping
+                    
+                    VBox cellContent = new VBox(10,contentLabel);
+                    setGraphic(cellContent);
+                }
+            }
+        });
+
 		// - - - - - - - - - - - - - - - CONTENT - - - - - - - - - - - - - - 
         
        
@@ -209,10 +183,10 @@ public class IndividualQuestionPage {
         buttonContainer.setAlignment(javafx.geometry.Pos.TOP_RIGHT);
         
         if (user.getUserName().equals(question.getAuthor()) || user.isReviewer()) {
-        	buttonContainer.getChildren().addAll(updateButton, deleteButton, reviewsButton);
+        	buttonContainer.getChildren().addAll(updateButton, deleteButton,questionsButton);
         }
         
-        VBox centerContent = new VBox(10, buttonContainer, authorText, questionText, contentText, answerButton, messageButton, listView);
+        VBox centerContent = new VBox(10, buttonContainer, authorText, questionText, contentText, reviewButton, messageButton, listView);
         centerContent.setStyle("-fx-padding: 20px;");
 
         BorderPane borderPane = new BorderPane();

@@ -102,6 +102,14 @@ public class DatabaseHelper {
 	    		+ "FOREIGN KEY (question_id) REFERENCES Questions(id) ON DELETE CASCADE);";
 	    statement.execute(answersTable); 
 	    
+	    String reviewsTable = "CREATE TABLE IF NOT EXISTS Reviews ("
+	    		+ "id INT AUTO_INCREMENT PRIMARY KEY, "
+	    		+ "question_id INT NOT NULL, "
+	    		+ "author VARCHAR(100) NOT NULL, " 
+	    		+ "content TEXT NOT NULL, " 
+	    		+ "FOREIGN KEY (question_id) REFERENCES Questions(id) ON DELETE CASCADE);";
+	    statement.execute(reviewsTable); 
+	    
 	    // Table for trusted reviewers
 	    String reviewersTable = "CREATE TABLE IF NOT EXISTS Reviewers ("
 	    		+ "name VARCHAR(100) NOT NULL, "
@@ -945,6 +953,134 @@ public class DatabaseHelper {
 		}
 		
 		// - - - - - - - - - - - - - - - MESSAGE METHODS END - - - - - - - - - - - - - - - - -
+		
+		// - - - - - - - - - - - - - - - REVIEWS METHODS START - - - - - - - - - - - - - - - - -
+		// Create a new review
+		public boolean createReview(Review review) {
+		    String query = "INSERT INTO Reviews (question_id, author, content) VALUES (?, ?, ?)";
+		    
+		    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+		        pstmt.setInt(1, review.getQuestionId());
+		        pstmt.setString(2, review.getAuthor());
+		        pstmt.setString(3, review.getContent());
+		        
+		        int rowsInserted = pstmt.executeUpdate();
+		        
+		        if (rowsInserted > 0) {
+		            System.out.println("Review inserted successfully!");
+		            return true;
+		        } else {
+		            System.out.println("Failed to insert review.");
+		            return false;
+		        }
+		    }
+		    catch (SQLException e) {
+		        System.err.println("SQL Error during review insertion: " + e.getMessage());
+		        e.printStackTrace();
+		        return false;
+		    }
+		}
+
+		// Update an existing review
+		public boolean updateReview(int id, String content) throws SQLException {
+		    System.out.println("Updating review with id: " + id);
+		    
+		    String query = "UPDATE Reviews SET content = ? WHERE id = ?";
+		    
+		    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+		        pstmt.setString(1, content);
+		        pstmt.setInt(2, id);
+		        
+		        int rowsUpdated = pstmt.executeUpdate();
+
+		        if (rowsUpdated > 0) {
+		            System.out.println("Review updated successfully!");
+		            return true;
+		        } else {
+		            System.out.println("No review found with ID: " + id);
+		            return false;
+		        }
+		    } catch (SQLException e) {
+		        System.err.println("SQL Error during update: " + e.getMessage());
+		        e.printStackTrace();
+		        return false;
+		    }
+		}
+
+		// Delete a review
+		public boolean deleteReview(int id) {
+		    System.out.println("Deleting review with id: " + id);
+		    
+		    String query = "DELETE FROM Reviews WHERE id = ?";
+		    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+		        pstmt.setInt(1, id);
+		        int rowsDeleted = pstmt.executeUpdate();
+
+		        if (rowsDeleted > 0) {
+		            System.out.println("Review deleted successfully!");
+		            return true;
+		        } else {
+		            System.out.println("No review found with ID: " + id);
+		            return false;
+		        }
+		    } catch (SQLException e) {
+		        System.err.println("SQL Error during deletion: " + e.getMessage());
+		        e.printStackTrace();
+		        return false;
+		    }
+		}
+
+		// Get a single review by its ID
+		public Review getReviewById(int reviewId) throws SQLException {
+		    String query = "SELECT * FROM Reviews WHERE id = ?";
+		    
+		    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+		        pstmt.setInt(1, reviewId);
+		        ResultSet rs = pstmt.executeQuery();
+
+		        if (rs.next()) {
+		            Review review = new Review(
+		                rs.getInt("question_id"),
+		                rs.getString("author"),
+		                rs.getString("content")
+		            );
+		            review.setId(reviewId);
+		            return review;
+		        }
+		    }
+		    return null; // Return null if no review is found
+		}
+		
+		
+		public List<Review> getReviewsByQuestionId(int questionId) throws SQLException {
+		    String query = "SELECT * FROM Reviews WHERE question_id = ?";
+		    List<Review> reviews = new ArrayList<>();
+		    
+		    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+		        pstmt.setInt(1, questionId);
+		        
+		        ResultSet rs = pstmt.executeQuery();
+		        
+		        while (rs.next()) {
+		            Review review = new Review(
+		                rs.getInt("question_id"), 
+		                rs.getString("author"), 
+		                rs.getString("content")
+		            );
+		            
+		            review.setId(rs.getInt("id"));
+		            reviews.add(review);
+		        }
+		        
+		        return reviews;
+		    }
+		    catch (SQLException e) {
+		        System.err.println("SQL Error fetching reviews: " + e.getMessage());
+		        e.printStackTrace();
+		        return new ArrayList<>(); // Return empty list instead of null
+		    }
+		}
+		// - - - - - - - - - - - - - - - REVIEWS METHODS END - - - - - - - - - - - - - - - - -
 
 
 		// - - - - - - - - - - - - - - - QUESTIONS LIST METHOD TO SEARCH QUESTION END  - - - - - - - - - - - - - - - - -
