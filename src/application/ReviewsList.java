@@ -1,27 +1,24 @@
 package application;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+
+import databasePart1.DatabaseHelper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import databasePart1.DatabaseHelper;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ToolBar;
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.Node;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
-
-public class Forums {
+public class ReviewsList {
 	private final DatabaseHelper databaseHelper;
 
-    public Forums(DatabaseHelper databaseHelper) {
+    public ReviewsList(DatabaseHelper databaseHelper) {
         this.databaseHelper = databaseHelper;
     }
 
@@ -142,6 +139,5 @@ public class Forums {
         primaryStage.setScene(scene);
         primaryStage.show();
         // - - - - - - - - - - - - - - - GENERAL LAYOUT FOR PAGES - - - - - - - - - - - - - - 
-
     }
 }

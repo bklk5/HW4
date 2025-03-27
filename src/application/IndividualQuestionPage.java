@@ -37,10 +37,10 @@ public class IndividualQuestionPage {
     	Button reviewersListButton = new Button("Trusted Reviewers List");
     	Button messagesButton = new Button("Messages");
     	Button logoutButton = new Button("Logout");
+    	Button reviewsListButton = new Button("Reviews");
     	
     	// container to right align logout button
     	HBox rightContainer = new HBox(logoutButton);
-    	rightContainer.setPrefWidth(380);
     	rightContainer.setAlignment(javafx.geometry.Pos.TOP_RIGHT);
     	
     	homeButton.setOnAction(a -> new HomePage(databaseHelper).show(primaryStage, user));
@@ -49,10 +49,20 @@ public class IndividualQuestionPage {
     	// set on action with reviewersListButton
     	messagesButton.setOnAction(a -> new MessagesPage(databaseHelper).show(primaryStage,user));
         logoutButton.setOnAction(a -> new SetupLoginSelectionPage(databaseHelper).show(primaryStage));
+        reviewsListButton.setOnAction(a -> new ReviewsList(databaseHelper).show(primaryStage, user));
 
     	
     	// Create the Top Navigation Bar
-        ToolBar toolbar = new ToolBar(homeButton, forumsButton, reviewersListButton,messagesButton, searchButton,rightContainer);
+        ToolBar toolbar = new ToolBar();
+        
+        if(user.isReviewer()) {
+        	rightContainer.setPrefWidth(310);
+        	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, searchButton, reviewsListButton, rightContainer);
+        }
+        else {
+        	rightContainer.setPrefWidth(380);
+        	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, searchButton, rightContainer);
+        }
         // - - - - - - - - - - - - - - - NAV BAR - - - - - - - - - - - - - - 
         
 
