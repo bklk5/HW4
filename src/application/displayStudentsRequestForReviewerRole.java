@@ -3,6 +3,7 @@ package application;
 import java.sql.SQLException;
 
 import databasePart1.DatabaseHelper;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
@@ -97,6 +98,7 @@ public class displayStudentsRequestForReviewerRole {
                 super.updateItem(u, empty);
                 if (empty || u == null) {
                     setText(null);
+                    setGraphic(null);
                 } else {
                 	Button approveRequestButton  = new Button ("Accept Request");
                 	Button declineRequestButton  = new Button ("Decline Request");
@@ -106,11 +108,13 @@ public class displayStudentsRequestForReviewerRole {
                 		databaseHelper.add_remove_Role(u.getUserName(),"add", "reviewerRole");
                 		databaseHelper.add_remove_Role(u.getUserName(),"remove", "requestReviewerRole");
                 		items.remove(u);
+               
                     });
                 	declineRequestButton.setOnAction(a ->{
                     	//decline the request, remove student from list, update database
                 		databaseHelper.add_remove_Role(u.getUserName(),"remove", "requestReviewerRole");
                 		items.remove(u);
+              
                     });
      
                 	Label studentUserNameLabel = new Label("Student: " + u.getUserName());
