@@ -82,8 +82,8 @@ public class IndividualAnswerPage {
         System.out.println("Author: " + answer.getAuthor());
         
         Label header = new Label(answer.getAuthor() + "'s Post");
-        Button updateButton = new Button("Update answer");
-        Button deleteButton = new Button("Delete answer");
+        Button updateButton = new Button("Update Answer");
+        Button deleteButton = new Button("Delete Answer");
 		Label contentText = new Label(answer.getContent());
 
 		
@@ -115,6 +115,7 @@ public class IndividualAnswerPage {
 	    	            });
 				
 		});
+	
 		
 		// - - - - - - - - - - - - - - - CONTENT - - - - - - - - - - - - - - 
         

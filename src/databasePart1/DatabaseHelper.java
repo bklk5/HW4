@@ -1136,6 +1136,7 @@ public class DatabaseHelper {
 		    }
 		}
 		
+		
 		public List<Review> getAllReviews(String username) throws SQLException {
 		    String query = "SELECT * FROM Reviews WHERE author = ?";
 		    List<Review> reviews = new ArrayList<>();

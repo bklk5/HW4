@@ -95,6 +95,7 @@ public class IndividualReviewPage {
         Label header = new Label("Your Review: ");
         Button updateButton = new Button("Update review");
         Button deleteButton = new Button("Delete review");
+        Button messageButton = new Button("Message the reviewer");
 		Label contentText = new Label(review.getContent());
 
 		
@@ -127,6 +128,11 @@ public class IndividualReviewPage {
 				
 		});
 		
+		messageButton.setOnAction(a ->{
+			System.out.println("sending message to " + review.getAuthor());
+			new CreateMessage(databaseHelper).showReviewer(primaryStage, user, question, review);
+		});
+		
 		// - - - - - - - - - - - - - - - CONTENT - - - - - - - - - - - - - - 
         
         // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -134,7 +140,7 @@ public class IndividualReviewPage {
 		buttonContainer.setAlignment(javafx.geometry.Pos.TOP_RIGHT);
         
         if (user.getUserName().equals(review.getAuthor()) || user.isReviewer()) {
-        	buttonContainer.getChildren().addAll(updateButton, deleteButton);
+        	buttonContainer.getChildren().addAll(updateButton, deleteButton, messageButton);
         }
         
         VBox centerContent = new VBox(10, buttonContainer, title, author, header, contentText);
