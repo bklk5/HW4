@@ -42,5 +42,16 @@ public class Review {
 	public void setId(int id) {
 		this.id = id;
 	}
+	
+	//RATING METHODS
+	private double averageRating;
+
+	public double getAverageRating() {
+	    return averageRating;
+	}
+
+	public void setAverageRating(double averageRating) {
+	    this.averageRating = averageRating;
+	}
 }
 	

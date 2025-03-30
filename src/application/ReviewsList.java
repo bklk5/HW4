@@ -2,6 +2,7 @@ package application;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 import databasePart1.DatabaseHelper;
 import javafx.collections.FXCollections;
@@ -77,6 +78,17 @@ public class ReviewsList {
 		    } else {
 		        // Get reviews directly from the database and add to the observable list
 		        List<Review> reviews = databaseHelper.getAllReviews(user.getUserName());
+		        
+		        // Inject ratings
+                Map<Integer, Double> avgRatings = databaseHelper.getAverageRatingsForAllReviews();
+                for (Review review : reviews) {
+                    double avg = avgRatings.getOrDefault(review.getId(), 0.0);
+                    review.setAverageRating(avg);
+                }
+
+                // Sort reviews by average rating (descending)
+                reviews.sort((a, b) -> Double.compare(b.getAverageRating(), a.getAverageRating()));
+
 		        items.addAll(reviews);
 		    }
 		} catch (SQLException e) {
@@ -103,9 +115,10 @@ public class ReviewsList {
 					}
                 	
                     Label contentLabel = new Label("Question : " + q.getTitle());
+                    Label ratingLabel = new Label("Average Rating: " + String.format("%.1f", review.getAverageRating()));
                     contentLabel.setWrapText(true); // Enable text wrapping
                     
-                    VBox cellContent = new VBox(10,contentLabel);
+                    VBox cellContent = new VBox(10,contentLabel, ratingLabel);
                     setGraphic(cellContent);
                 }
             }

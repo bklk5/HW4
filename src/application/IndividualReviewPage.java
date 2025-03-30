@@ -143,7 +143,39 @@ public class IndividualReviewPage {
         	buttonContainer.getChildren().addAll(updateButton, deleteButton, messageButton);
         }
         
-        VBox centerContent = new VBox(10, buttonContainer, title, author, header, contentText);
+        // - - - - - - - - - - - - - - - RATING - - - - - - - - - - - - - - 
+        
+        // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        
+        double averageRating = databaseHelper.getAverageRatingsForAllReviews()
+                .getOrDefault(review.getId(), 0.0);
+        Label averageRatingLabel = new Label("Average Rating: " + String.format("%.1f", averageRating));
+        averageRatingLabel.setStyle("-fx-text-fill: darkgreen;");
+
+        // STUDENT RATING SECTION
+        Label rateLabel = new Label("Rate this review (1–10):");
+        ComboBox<Integer> ratingCombo = new ComboBox<>();
+        ratingCombo.getItems().addAll(java.util.stream.IntStream.rangeClosed(1, 10).boxed().toList());
+
+        Button submitRating = new Button("Submit Rating");
+        submitRating.setOnAction(e -> {
+            Integer rating = ratingCombo.getValue();
+            if (rating == null) {
+                showAlert("Please select a rating before submitting.");
+                return;
+            }
+
+            try {
+                databaseHelper.addOrUpdateReviewRating(review.getId(), user.getUserName(), rating);
+                showAlert("Rating submitted!");
+                new ReviewsList(databaseHelper).show(primaryStage, user);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                showAlert("Error submitting rating.");
+            }
+        });
+        
+        VBox centerContent = new VBox(10, buttonContainer, title, author, header, contentText, averageRatingLabel, rateLabel, ratingCombo, submitRating);
         centerContent.setStyle("-fx-padding: 20px;");
 
         BorderPane borderPane = new BorderPane();
@@ -155,5 +187,12 @@ public class IndividualReviewPage {
         primaryStage.setTitle("Forums");
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+    
+    private void showAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }
