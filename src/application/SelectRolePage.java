@@ -34,7 +34,7 @@ public class SelectRolePage {
 		    	Button adminButton = new Button("Admin");
 		    	// If button is pressed, will send the user to the admin page
 		    	adminButton.setOnAction(a -> {
-		    		new AdminHomePage(databaseHelper).show(primaryStage);
+		    		new HomePage(databaseHelper).show(primaryStage, user);
 	            });
 		    	// Add the button to the layout
 	            layout.getChildren().add(adminButton);
@@ -44,7 +44,7 @@ public class SelectRolePage {
 		    	Button studentButton = new Button("Student");
 		    	// If button is pressed, will send the user to the student page
 		    	studentButton.setOnAction(a -> {
-		    		new StudentHomePage(databaseHelper).show(primaryStage,user);
+		    		new HomePage(databaseHelper).show(primaryStage, user);
 	            });
 		    	// Add the button to the layout
 	            layout.getChildren().add(studentButton);
@@ -54,7 +54,7 @@ public class SelectRolePage {
 		    	Button instructorButton = new Button("Instructor");
 		    	// If button is pressed, will send the user to the instructor page
 		    	instructorButton.setOnAction(a -> {
-		    		new InstructorHomePage(databaseHelper).show(primaryStage);
+		    		new HomePage(databaseHelper).show(primaryStage, user);
 	            });
 		    	// Add the button to the layout
 	            layout.getChildren().add(instructorButton);
@@ -64,7 +64,7 @@ public class SelectRolePage {
 		    	Button staffButton = new Button("Staff");
 		    	// If button is pressed, will send the user to the staff page
 		    	staffButton.setOnAction(a -> {
-		    		new StaffHomePage(databaseHelper).show(primaryStage);
+		    		new HomePage(databaseHelper).show(primaryStage, user);
 	            });
 		    	// Add the button to the layout
 	            layout.getChildren().add(staffButton);
@@ -74,7 +74,7 @@ public class SelectRolePage {
 		    	Button reviewerButton = new Button("Reviewer");
 		    	// If button is pressed, will send the user to the reviewer page
 		    	reviewerButton.setOnAction(a -> {
-		    		new ReviewerHomePage(databaseHelper).show(primaryStage);
+		    		new HomePage(databaseHelper).show(primaryStage, user);
 	            });
 		    	// Add the button to the layout
 	            layout.getChildren().add(reviewerButton);

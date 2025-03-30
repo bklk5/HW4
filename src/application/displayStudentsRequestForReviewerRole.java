@@ -1,27 +1,24 @@
 package application;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+
+import databasePart1.DatabaseHelper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import databasePart1.DatabaseHelper;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ToolBar;
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.Node;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
-
-public class MessagesPage {
+public class displayStudentsRequestForReviewerRole {
 	private final DatabaseHelper databaseHelper;
 
-    public MessagesPage(DatabaseHelper databaseHelper) {
+    public displayStudentsRequestForReviewerRole(DatabaseHelper databaseHelper) {
         this.databaseHelper = databaseHelper;
     }
 
@@ -49,6 +46,7 @@ public class MessagesPage {
         logoutButton.setOnAction(a -> new SetupLoginSelectionPage(databaseHelper).show(primaryStage));
         reviewsListButton.setOnAction(a -> new ReviewsList(databaseHelper).show(primaryStage, user));
         reviewerRequest.setOnAction(a -> new displayStudentsRequestForReviewerRole(databaseHelper).show(primaryStage, user));
+
     	
     	// Create the Top Navigation Bar
         ToolBar toolbar = new ToolBar();
@@ -57,7 +55,7 @@ public class MessagesPage {
         	rightContainer.setPrefWidth(310);
         	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, searchButton, reviewsListButton, rightContainer);
         }
-        else if(user.isInstructor()) {
+        if(user.isInstructor()) {
         	rightContainer.setPrefWidth(260);
         	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, searchButton, reviewerRequest, rightContainer);
         }
@@ -70,14 +68,10 @@ public class MessagesPage {
         
         
         // - - - - - - - - - - - - - - - CONTENT - - - - - - - - - - - - - - 
-        Label header = new Label("Your Feedback and Messages: ");
-	    header.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
-
     	// Set up listview to show list of question titles
-    	ObservableList<Message> items = FXCollections.observableArrayList();
-    	ListView<Message> listView = new ListView<>(items);
+    	ObservableList<User> items = FXCollections.observableArrayList();
+    	ListView<User> listView = new ListView<>(items);
     	
-    	List<Message> mList = new ArrayList<>();
 
         
         try {
@@ -88,41 +82,59 @@ public class MessagesPage {
                 return; // Exit early if database is empty
             } else {
             	
-            	// Add question titles to listview 
-            	mList = databaseHelper.getMessages(user);
-                items.addAll(mList); 
+            	
+                items.addAll(databaseHelper.retrieveStudentsReviewerRequest()); 
 
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
         
-     // Set custom cell factory to display questions in a readable way
-        listView.setCellFactory(param -> new javafx.scene.control.ListCell<Message>() {
+        // Set custom cell factory to display questions in a readable way
+        listView.setCellFactory(param -> new javafx.scene.control.ListCell<User>() {
             @Override
-            protected void updateItem(Message m, boolean empty) {
-                super.updateItem(m, empty);
-                if (empty || m == null) {
+            protected void updateItem(User u, boolean empty) {
+                super.updateItem(u, empty);
+                if (empty || u == null) {
                     setText(null);
                 } else {
-                    setText(m.getSender() + " said : " + m.getContent());
-                    setStyle("-fx-padding:10px 20px;");
+                	Button approveRequestButton  = new Button ("Accept Request");
+                	Button declineRequestButton  = new Button ("Decline Request");
+                	declineRequestButton.setStyle("-fx-background-color: red; -fx-text-fill: white");
+                	approveRequestButton.setOnAction(a ->{
+                    	//accept the request, make the reviewed student a reviewer, remove him from the list
+                		databaseHelper.add_remove_Role(u.getUserName(),"add", "reviewerRole");
+                		databaseHelper.add_remove_Role(u.getUserName(),"remove", "requestReviewerRole");
+                		items.remove(u);
+                    });
+                	declineRequestButton.setOnAction(a ->{
+                    	//decline the request, remove student from list, update database
+                		databaseHelper.add_remove_Role(u.getUserName(),"remove", "requestReviewerRole");
+                		items.remove(u);
+                    });
+     
+                	Label studentUserNameLabel = new Label("Student: " + u.getUserName());
+                    HBox cellContainer = new HBox(studentUserNameLabel,approveRequestButton, declineRequestButton);
+                    cellContainer.setSpacing(30);
+                    setGraphic(cellContainer);
                 }
             }
         });
+
+       
         
         // Handle button for listview upon clicking
         listView.setOnMouseClicked(a -> {
         	if (a.getClickCount() >= 2) {
-                Message selectedItem = listView.getSelectionModel().getSelectedItem();
+                User selectedItem = listView.getSelectionModel().getSelectedItem();
                 
                 if(selectedItem != null) {
-                	// take person to page of question
-					System.out.println(selectedItem.getContent());
-					User sender = databaseHelper.getUser(selectedItem.getSender());
-					new ConversationPage(databaseHelper).show(primaryStage, user, sender);
-                }
+                	
+                // take instructor to current students Questions and Answers
+				new StudentQuestionsAndAnswers(databaseHelper).show(primaryStage,user,selectedItem);
+				
         	}
+        }
         });
 	    // - - - - - - - - - - - - - - - CONTENT END  - - - - - - - - - - - - - - 
 
@@ -130,7 +142,7 @@ public class MessagesPage {
         
 
         // - - - - - - - - - - - - - - - GENERAL LAYOUT FOR PAGES - - - - - - - - - - - - - - 
-        VBox centerContent = new VBox(10, header, listView);
+        VBox centerContent = new VBox(10,listView);
         centerContent.setStyle("-fx-padding: 20px;");
 
         BorderPane borderPane = new BorderPane();
@@ -145,4 +157,5 @@ public class MessagesPage {
         // - - - - - - - - - - - - - - - GENERAL LAYOUT FOR PAGES - - - - - - - - - - - - - - 
 
     }
+
 }

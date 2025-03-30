@@ -59,7 +59,8 @@ public class DatabaseHelper {
 				+ "studentRole BOOLEAN DEFAULT FALSE,"
 				+ "instructorRole BOOLEAN DEFAULT FALSE,"
 				+ "staffRole BOOLEAN DEFAULT FALSE,"
-				+ "reviewerRole BOOLEAN DEFAULT FALSE)";
+				+ "reviewerRole BOOLEAN DEFAULT FALSE,"
+				+ "requestReviewerRole BOOLEAN DEFAULT FALSE)";
 		statement.execute(userTable);
 		
 		// Create the invitation codes table
@@ -724,6 +725,33 @@ public class DatabaseHelper {
 			}
 		}
 	}
+	// retrieve questions by author
+	public List<Question> getQuestionByAuthor(String author) throws SQLException {
+		String query = "SELECT * FROM Questions Where author = ?";
+	    List<Question> questions = new ArrayList<>();
+
+	    try(PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setString(1, author);
+			
+			ResultSet rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				Question question = new Question(rs.getString("title"), rs.getString("content"), rs.getString("author"), rs.getString("category"));
+				
+				question.setId(rs.getInt("id"));
+				questions.add(question);
+			}
+			
+			return questions;
+		}
+		catch (SQLException e){
+			System.err.println("SQL Error fetching answers: " + e.getMessage());
+			e.printStackTrace();
+			return null;
+		}
+	} 
+	
+	
 	
 	// - - - - - - - - - - - - - - - QUESTION METHODS END - - - - - - - - - - - - - -
 
@@ -872,6 +900,33 @@ public class DatabaseHelper {
 		        return 0;
 		    }
 		}
+		//Retrieve answer based on author
+		public List<Answer> readAnswersByAuthor(String author) throws SQLException {
+			String query = "SELECT * FROM Answers WHERE author = ?";
+			List<Answer> answers = new ArrayList<>();
+			
+			try(PreparedStatement pstmt = connection.prepareStatement(query)) {
+				pstmt.setString(1, author);
+				
+				ResultSet rs = pstmt.executeQuery();
+				
+				while(rs.next()) {
+					Answer answer = new Answer(rs.getInt("question_id"), rs.getString("author"), rs.getString("content"));
+					
+					answer.setId(rs.getInt("id"));
+					answers.add(answer);
+				}
+				
+				return answers;
+			}
+			catch (SQLException e){
+				System.err.println("SQL Error fetching answers: " + e.getMessage());
+				e.printStackTrace();
+				return null;
+			}
+		   
+		}
+		
 		
 		
 		// - - - - - - - - - - - - - - - ANSWER METHODS END - - - - - - - - - - - - - - - - -
@@ -1109,6 +1164,39 @@ public class DatabaseHelper {
 		        return new ArrayList<>(); // Return empty list instead of null
 		    }
 		}
+
+		//Retrieve all of users that request to become a reviewer
+		public List<User> retrieveStudentsReviewerRequest() {
+				String query = "SELECT * FROM cse360users WHERE studentRole = TRUE AND reviewerRole = FALSE AND requestReviewerRole = TRUE";
+				List<User> result = new ArrayList<>();
+				try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			       
+			        ResultSet rs = pstmt.executeQuery();
+			        
+			       while(rs.next()) {
+			            result.add(new User(rs.getString("name"), 
+			            		rs.getString("email"), 
+			            		rs.getString("userName"),
+			            		rs.getString("password"),
+			            		rs.getBoolean("adminRole"),
+			            		rs.getBoolean("studentRole"),
+			            		rs.getBoolean("instructorRole"),
+			            		rs.getBoolean("staffRole"),
+			            		rs.getBoolean("reviewerRole")));
+			            System.out.println("User found!");
+			           
+			              
+			    }
+			  
+				}catch (SQLException e) {
+			        System.err.println("SQL Error during update: " + e.getMessage());
+			        e.printStackTrace();
+			    }
+				return result;
+			}
+		
+		
+
 		// - - - - - - - - - - - - - - - REVIEWS METHODS END - - - - - - - - - - - - - - - - -
 
 

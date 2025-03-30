@@ -1,31 +1,27 @@
 package application;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+
+import databasePart1.DatabaseHelper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import databasePart1.DatabaseHelper;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ToolBar;
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.Node;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
-
-public class MessagesPage {
+public class StudentQuestionsAndAnswers {
 	private final DatabaseHelper databaseHelper;
 
-    public MessagesPage(DatabaseHelper databaseHelper) {
+    public StudentQuestionsAndAnswers (DatabaseHelper databaseHelper) {
         this.databaseHelper = databaseHelper;
     }
 
-    public void show(Stage primaryStage, User user) {  
+    public void show(Stage primaryStage, User user, User studentInReview) {  
     	// - - - - - - - - - - - - - - - NAV BAR - - - - - - - - - - - - - - 
     	// Set up buttons for top nav bar 
     	Button homeButton = new Button("Home");
@@ -57,7 +53,7 @@ public class MessagesPage {
         	rightContainer.setPrefWidth(310);
         	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, searchButton, reviewsListButton, rightContainer);
         }
-        else if(user.isInstructor()) {
+        if(user.isInstructor()) {
         	rightContainer.setPrefWidth(260);
         	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, searchButton, reviewerRequest, rightContainer);
         }
@@ -70,14 +66,10 @@ public class MessagesPage {
         
         
         // - - - - - - - - - - - - - - - CONTENT - - - - - - - - - - - - - - 
-        Label header = new Label("Your Feedback and Messages: ");
-	    header.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
-
     	// Set up listview to show list of question titles
-    	ObservableList<Message> items = FXCollections.observableArrayList();
-    	ListView<Message> listView = new ListView<>(items);
+    	ObservableList<Object> items = FXCollections.observableArrayList();
+    	ListView<Object> listView = new ListView<>(items);
     	
-    	List<Message> mList = new ArrayList<>();
 
         
         try {
@@ -88,39 +80,63 @@ public class MessagesPage {
                 return; // Exit early if database is empty
             } else {
             	
-            	// Add question titles to listview 
-            	mList = databaseHelper.getMessages(user);
-                items.addAll(mList); 
-
+                items.addAll(databaseHelper.getQuestionByAuthor(studentInReview.getUserName())); 
+                items.addAll(databaseHelper.readAnswersByAuthor(studentInReview.getUserName())); 
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
         
-     // Set custom cell factory to display questions in a readable way
-        listView.setCellFactory(param -> new javafx.scene.control.ListCell<Message>() {
+        // Set custom cell factory to display questions in a readable way
+        listView.setCellFactory(param -> new javafx.scene.control.ListCell<Object>() {
             @Override
-            protected void updateItem(Message m, boolean empty) {
-                super.updateItem(m, empty);
-                if (empty || m == null) {
+            protected void updateItem(Object i, boolean empty) {
+                super.updateItem(i, empty);
+                if (empty || i == null) {
                     setText(null);
-                } else {
-                    setText(m.getSender() + " said : " + m.getContent());
-                    setStyle("-fx-padding:10px 20px;");
+                } 
+                else if(i instanceof Question) {
+                	Question temp  = (Question) i;
+                	setText("Question title: " + temp.getTitle());
+                }
+       
+                else {
+                	Answer temp  = (Answer) i;
+                    setText("Answer: " + temp.getContent());
                 }
             }
         });
+
+       
         
         // Handle button for listview upon clicking
         listView.setOnMouseClicked(a -> {
         	if (a.getClickCount() >= 2) {
-                Message selectedItem = listView.getSelectionModel().getSelectedItem();
-                
+                Object selectedItem = listView.getSelectionModel().getSelectedItem();
+             // take instructor to the specific answer, question page made by the reviewed student
                 if(selectedItem != null) {
-                	// take person to page of question
-					System.out.println(selectedItem.getContent());
-					User sender = databaseHelper.getUser(selectedItem.getSender());
-					new ConversationPage(databaseHelper).show(primaryStage, user, sender);
+                	
+                	//check if the object is of type question or answer
+                	if(selectedItem instanceof Question) {
+                		Question temp = (Question) selectedItem;
+                		try {
+							new IndividualQuestionPage(databaseHelper).show(primaryStage, user, temp);
+						} catch (SQLException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+                	}
+                	//If not a question, must be an answer
+                	else {
+                		Answer temp = (Answer) selectedItem;
+                		try {
+                			Question q = databaseHelper.readQuestionById(temp.getQuestionId());
+							new IndividualQuestionPage(databaseHelper).show(primaryStage, user, q);
+						} catch (SQLException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+                	}
                 }
         	}
         });
@@ -130,7 +146,7 @@ public class MessagesPage {
         
 
         // - - - - - - - - - - - - - - - GENERAL LAYOUT FOR PAGES - - - - - - - - - - - - - - 
-        VBox centerContent = new VBox(10, header, listView);
+        VBox centerContent = new VBox(10,listView);
         centerContent.setStyle("-fx-padding: 20px;");
 
         BorderPane borderPane = new BorderPane();
@@ -145,4 +161,6 @@ public class MessagesPage {
         // - - - - - - - - - - - - - - - GENERAL LAYOUT FOR PAGES - - - - - - - - - - - - - - 
 
     }
+
+
 }

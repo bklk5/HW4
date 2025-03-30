@@ -35,6 +35,7 @@ public class HomePage {
     	Button messagesButton = new Button("Messages");
     	Button logoutButton = new Button("Logout");
     	Button reviewsListButton = new Button("Reviews");
+    	Button reviewerRequest  = new Button("Reviewer Requests");
     	
     	// container to right align logout button
     	HBox rightContainer = new HBox(logoutButton);
@@ -47,7 +48,7 @@ public class HomePage {
     	messagesButton.setOnAction(a -> new MessagesPage(databaseHelper).show(primaryStage,user));
         logoutButton.setOnAction(a -> new SetupLoginSelectionPage(databaseHelper).show(primaryStage));
         reviewsListButton.setOnAction(a -> new ReviewsList(databaseHelper).show(primaryStage, user));
-
+        reviewerRequest.setOnAction(a -> new displayStudentsRequestForReviewerRole(databaseHelper).show(primaryStage, user));
     	
     	// Create the Top Navigation Bar
         ToolBar toolbar = new ToolBar();
@@ -55,6 +56,10 @@ public class HomePage {
         if(user.isReviewer()) {
         	rightContainer.setPrefWidth(310);
         	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, searchButton, reviewsListButton, rightContainer);
+        }
+        else if(user.isInstructor()) {
+        	rightContainer.setPrefWidth(260);
+        	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, searchButton, reviewerRequest, rightContainer);
         }
         else {
         	rightContainer.setPrefWidth(380);
@@ -70,6 +75,7 @@ public class HomePage {
 	    Button listUsersButton = new Button("List Users");
 	    Button removeUsersButton = new Button("Remove Users");
 	    Button updateRoleButton = new Button("Update Role");
+	    Button requestReviewerRoleButton = new Button("Request Reviewer Access");
 	    
 	    // styling 
 	    welcomeText.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
@@ -99,8 +105,18 @@ public class HomePage {
         	//page and feature need implementation
         	new UpdateRolesPage().show(databaseHelper, primaryStage);
         });
-        // Logout user
-
+        // Student request to become a reviewer
+        requestReviewerRoleButton.setOnAction(a -> {
+        	databaseHelper.add_remove_Role(user.getUserName(), "add", "requestReviewerRole");
+        	// alert student the request was made
+	        Alert requestAlert = new Alert(Alert.AlertType.INFORMATION);
+	        requestAlert.setTitle("Reviewer Role request");
+	        requestAlert.setContentText("A request to become a reviewer was send to the instructor! ");
+	        requestAlert.setHeaderText("");
+	        requestAlert.showAndWait();
+	        
+	        requestReviewerRoleButton.setVisible(false);
+        });
 
     	
     	if (user.isAdmin()) {
@@ -128,6 +144,9 @@ public class HomePage {
         // conditionally render options for user depending on their role
         if (user.isAdmin()) {
         	centerContent.getChildren().addAll(inviteButton,oneTimePasswordButton,listUsersButton,removeUsersButton,updateRoleButton);
+        }
+        if(user.isStudent() && !user.isReviewer()) {
+        	centerContent.getChildren().add(requestReviewerRoleButton);
         }
         
         

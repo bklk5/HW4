@@ -37,6 +37,7 @@ public class SearchQuestions {
     	Button messagesButton = new Button("Messages");
     	Button logoutButton = new Button("Logout");
     	Button reviewsListButton = new Button("Reviews");
+    	Button reviewerRequest  = new Button("Reviewer Requests");
     	
     	// container to right align logout button
     	HBox rightContainer = new HBox(logoutButton);
@@ -50,7 +51,7 @@ public class SearchQuestions {
     	messagesButton.setOnAction(a -> new MessagesPage(databaseHelper).show(primaryStage,user));
         logoutButton.setOnAction(a -> new SetupLoginSelectionPage(databaseHelper).show(primaryStage));
         reviewsListButton.setOnAction(a -> new ReviewsList(databaseHelper).show(primaryStage, user));
-
+        reviewerRequest.setOnAction(a -> new displayStudentsRequestForReviewerRole(databaseHelper).show(primaryStage, user));
 
     	
     	// Create the Top Navigation Bar
@@ -59,6 +60,10 @@ public class SearchQuestions {
         if(user.isReviewer()) {
         	rightContainer.setPrefWidth(310);
         	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, navSearch, reviewsListButton, rightContainer);
+        }
+        else if(user.isInstructor()) {
+        	rightContainer.setPrefWidth(260);
+        	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, navSearch, reviewerRequest, rightContainer);
         }
         else {
         	rightContainer.setPrefWidth(380);

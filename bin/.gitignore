@@ -1,2 +1,7 @@
+<<<<<<< HEAD
 /application/
+=======
+/module-info.class
+>>>>>>> 747fb94 (added the feature to request the role of reviewer as a student and a way for instructor to accept or decline. Need to improve the navbar and one minor bug when it comes to listing users that are requesting the new role after rejecting/accepting)
 /databasePart1/
+/application/
