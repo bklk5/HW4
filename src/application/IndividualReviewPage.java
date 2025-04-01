@@ -95,7 +95,7 @@ public class IndividualReviewPage {
         Label header = new Label("Your Review: ");
         Button updateButton = new Button("Update review");
         Button deleteButton = new Button("Delete review");
-        Button messageButton = new Button("Message the reviewer");
+        Button messageButton = new Button("Send message");
 		Label contentText = new Label(review.getContent());
 
 		
