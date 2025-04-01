@@ -34,6 +34,7 @@ public class SelectRolePage {
 		    	Button adminButton = new Button("Admin");
 		    	// If button is pressed, will send the user to the admin page
 		    	adminButton.setOnAction(a -> {
+		    		user.setActiveRole("admin");
 		    		new HomePage(databaseHelper).show(primaryStage, user);
 	            });
 		    	// Add the button to the layout
@@ -44,6 +45,7 @@ public class SelectRolePage {
 		    	Button studentButton = new Button("Student");
 		    	// If button is pressed, will send the user to the student page
 		    	studentButton.setOnAction(a -> {
+		    		user.setActiveRole("student");
 		    		new HomePage(databaseHelper).show(primaryStage, user);
 	            });
 		    	// Add the button to the layout
@@ -54,6 +56,7 @@ public class SelectRolePage {
 		    	Button instructorButton = new Button("Instructor");
 		    	// If button is pressed, will send the user to the instructor page
 		    	instructorButton.setOnAction(a -> {
+		    		user.setActiveRole("instructor");
 		    		new HomePage(databaseHelper).show(primaryStage, user);
 	            });
 		    	// Add the button to the layout
@@ -64,6 +67,7 @@ public class SelectRolePage {
 		    	Button staffButton = new Button("Staff");
 		    	// If button is pressed, will send the user to the staff page
 		    	staffButton.setOnAction(a -> {
+		    		user.setActiveRole("staff");
 		    		new HomePage(databaseHelper).show(primaryStage, user);
 	            });
 		    	// Add the button to the layout
@@ -74,6 +78,7 @@ public class SelectRolePage {
 		    	Button reviewerButton = new Button("Reviewer");
 		    	// If button is pressed, will send the user to the reviewer page
 		    	reviewerButton.setOnAction(a -> {
+		    		user.setActiveRole("reviewer");
 		    		new HomePage(databaseHelper).show(primaryStage, user);
 	            });
 		    	// Add the button to the layout

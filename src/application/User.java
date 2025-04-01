@@ -14,6 +14,7 @@ public class User {
     private boolean instructorRole;
     private boolean staffRole;
     private boolean reviewerRole;
+    private String activeRole;
 
     // Constructor to initialize a new User object with userName, password, and role.
     public User( String userName, String password, boolean adminRole, boolean studentRole, boolean instructorRole, boolean staffRole, boolean reviewerRole) {
@@ -54,6 +55,9 @@ public class User {
     public void setReviewerRole(boolean reviewerRole) {
     	this.reviewerRole=reviewerRole;
     }
+    public void setActiveRole(String activeRole) {
+    	this.activeRole = activeRole;
+    }
     
     // accessor method for the current role of users
     public String getName() { return name; }
@@ -65,4 +69,13 @@ public class User {
     public boolean isInstructor() { return instructorRole; }
     public boolean isStaff() { return staffRole; }
     public boolean isReviewer() { return reviewerRole; }
+    public String getActiveRole() {return activeRole;}
+    public boolean isCurrentRoleAdmin() { return  activeRole.equals("admin");}
+    public boolean isCurrentRoleStudent() { return activeRole.equals("student"); }
+    public boolean isCurrentRoleInstructor() { return activeRole.equals("instructor"); }
+    public boolean isCurrentRoleStaff() { return activeRole.equals("staff"); }
+    public boolean isCurrentRoleReviewer() { return activeRole.equals("reviewer"); }
+    
+    
+    
 }

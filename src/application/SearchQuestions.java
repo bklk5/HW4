@@ -57,11 +57,11 @@ public class SearchQuestions {
     	// Create the Top Navigation Bar
         ToolBar toolbar = new ToolBar();
         
-        if(user.isReviewer()) {
+        if(user.isCurrentRoleReviewer()) {
         	rightContainer.setPrefWidth(310);
         	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, navSearch, reviewsListButton, rightContainer);
         }
-        else if(user.isInstructor()) {
+        else if(user.isCurrentRoleInstructor()) {
         	rightContainer.setPrefWidth(260);
         	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, navSearch, reviewerRequest, rightContainer);
         }

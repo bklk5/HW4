@@ -187,30 +187,36 @@ public class SetupAccountPage {
 		               
 		      
 		            	//check if the user has more then one role
-		            	if(totalRole > 1) {
-		            			new SelectRolePage(databaseHelper).show(primaryStage,user);
-		            	}
-		            		// Only one role assigned, go directly to the user role home page
-		            	else {
-		            		if (adminRole) {
-		            			new AdminHomePage(databaseHelper).show(primaryStage);
-		            				
-		            		}
-		            		else if (studentRole) {
-		            			new StudentHomePage(databaseHelper).show(primaryStage,user);
-		            		}
-		            		else if (instructorRole) {
-		            			new InstructorHomePage(databaseHelper).show(primaryStage);
-		            				
-		            		}
-		            		else if (staffRole) {
-		            			new StaffHomePage(databaseHelper).show(primaryStage);
-		            		}
-		            		else if (reviewerRole) {
-		            			new ReviewerHomePage(databaseHelper).show(primaryStage);
-		            		}
-		            			
-		            	}
+	            		if(totalRole > 1) {
+	            			new SelectRolePage(databaseHelper).show(primaryStage,user);
+	            		}
+	            		// Only one role assigned, go directly to the user role home page
+	            		else {
+	            			if (adminRole) {
+	            				user.setActiveRole("admin");
+	            				new HomePage(databaseHelper).show(primaryStage, user);
+	            				
+	            			}
+	            			else if (studentRole) {
+	            				user.setActiveRole("student");
+	            				// new StudentHomePage(databaseHelper).show(primaryStage, user);
+	            				new HomePage(databaseHelper).show(primaryStage, user);
+	            			}
+	            			else if (instructorRole) {
+	            				user.setActiveRole("instructor");
+	            				new HomePage(databaseHelper).show(primaryStage, user);
+	            				
+	            			}
+	            			else if (staffRole) {
+	            				user.setActiveRole("staff");
+	            				new HomePage(databaseHelper).show(primaryStage, user);
+	            			}
+	            			else if (reviewerRole) {
+	            				user.setActiveRole("reviewer");
+	            				new HomePage(databaseHelper).show(primaryStage, user);
+	            				}
+	            			
+	            		}
 		            		
                 		}	
 		            

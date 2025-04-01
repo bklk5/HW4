@@ -53,11 +53,11 @@ public class HomePage {
     	// Create the Top Navigation Bar
         ToolBar toolbar = new ToolBar();
         
-        if(user.isReviewer()) {
+        if(user.isCurrentRoleReviewer()) {
         	rightContainer.setPrefWidth(310);
         	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, searchButton, reviewsListButton, rightContainer);
         }
-        else if(user.isInstructor()) {
+        else if(user.isCurrentRoleInstructor()) {
         	rightContainer.setPrefWidth(260);
         	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, searchButton, reviewerRequest, rightContainer);
         }
@@ -119,7 +119,7 @@ public class HomePage {
         });
 
     	
-    	if (user.isAdmin()) {
+    	if (user.isCurrentRoleAdmin()) {
     		System.out.println("USER IS ADMIN");
     	}
     	else {
@@ -142,10 +142,10 @@ public class HomePage {
         VBox centerContent = new VBox(10, welcomeText);
         
         // conditionally render options for user depending on their role
-        if (user.isAdmin()) {
+        if (user.isCurrentRoleAdmin()) {
         	centerContent.getChildren().addAll(inviteButton,oneTimePasswordButton,listUsersButton,removeUsersButton,updateRoleButton);
         }
-        if(user.isStudent() && !user.isReviewer()) {
+        if(user.isCurrentRoleStudent() && !user.isReviewer()) {
         	centerContent.getChildren().add(requestReviewerRoleButton);
         }
         
