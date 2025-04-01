@@ -293,6 +293,22 @@ public class DatabaseHelper {
 			  }
 			  return false; // User does not have the reviewer role
 		}
+	public boolean isUserRequestingtoBecomeReviewer(String userName) {
+		String query = "SELECT requestReviewerRole FROM cse360users WHERE userName = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+				pstmt.setString(1, userName);
+			    ResultSet rs = pstmt.executeQuery();
+			        
+			    if (rs.next()) {
+			    	return rs.getBoolean("requestReviewerRole"); // Return the role if user exists
+			    }
+			  } catch (SQLException e) {
+			      e.printStackTrace();
+			  }
+			  return false; // User does not have the reviewer role
+		}
+	
+	
 
 	
 	// initial roles set when creating invitation code
