@@ -84,7 +84,7 @@ public class IndividualQuestionPage {
 		
 		reviewsButton.setOnAction(a -> {
 			try {
-				new IndividualQuestionsReviewsPage(databaseHelper).show(primaryStage, user, question);
+				new IndividualQuestionsWithReviewsPage(databaseHelper).show(primaryStage, user, question);
 			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}

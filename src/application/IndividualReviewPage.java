@@ -116,12 +116,7 @@ public class IndividualReviewPage {
 	    	                // Proceed with deletion if user confirms
 
 	    	            	databaseHelper.deleteQuestionReview(review.getId());
-	    	    			try {
-	    	    				new IndividualQuestionPage(databaseHelper).show(primaryStage, user, question);
-	    	    			} catch (SQLException e) {
-	    	    				// TODO Auto-generated catch block
-	    	    				e.printStackTrace();
-	    	    			}
+	    	    			new HomePage(databaseHelper).show(primaryStage, user);
 	    	    			
 	    	                }
 	    	            });

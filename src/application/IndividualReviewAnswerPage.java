@@ -19,15 +19,15 @@ import databasePart1.*;
  * The SetupAdmin class handles the setup process for creating an administrator account.
  * This is intended to be used by the first user to initialize the system with admin credentials.
  */
-public class IndividualAnswerPage {
+public class IndividualReviewAnswerPage {
 	
     private final DatabaseHelper databaseHelper;
 
-    public IndividualAnswerPage(DatabaseHelper databaseHelper) {
+    public IndividualReviewAnswerPage(DatabaseHelper databaseHelper) {
         this.databaseHelper = databaseHelper;
     }
 
-    public void show(Stage primaryStage, User user, Question question, Answer answer) throws SQLException {
+    public void show(Stage primaryStage, User user, Answer answer, Review review) throws SQLException {
     	try {
             databaseHelper.connectToDatabase(); // Connect to the database
             if (databaseHelper.isDatabaseEmpty()) {
@@ -48,7 +48,6 @@ public class IndividualAnswerPage {
     	Button messagesButton = new Button("Messages");
     	Button logoutButton = new Button("Logout");
     	Button reviewsListButton = new Button("Reviews");
-    	Button reviewerRequest  = new Button("Reviewer Requests");
     	
     	// container to right align logout button
     	HBox rightContainer = new HBox(logoutButton);
@@ -61,18 +60,14 @@ public class IndividualAnswerPage {
     	messagesButton.setOnAction(a -> new MessagesPage(databaseHelper).show(primaryStage,user));
         logoutButton.setOnAction(a -> new SetupLoginSelectionPage(databaseHelper).show(primaryStage));
         reviewsListButton.setOnAction(a -> new ReviewsList(databaseHelper).show(primaryStage, user));
-        reviewerRequest.setOnAction(a -> new displayStudentsRequestForReviewerRole(databaseHelper).show(primaryStage, user));
+
     	
     	// Create the Top Navigation Bar
         ToolBar toolbar = new ToolBar();
         
-        if(user.isCurrentRoleReviewer()) {
+        if(user.isReviewer()) {
         	rightContainer.setPrefWidth(310);
         	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, searchButton, reviewsListButton, rightContainer);
-        }
-        else if(user.isCurrentRoleInstructor()) {
-        	rightContainer.setPrefWidth(260);
-        	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, searchButton, reviewerRequest, rightContainer);
         }
         else {
         	rightContainer.setPrefWidth(380);
@@ -83,25 +78,37 @@ public class IndividualAnswerPage {
         // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         
         // - - - - - - - - - - - - - - - CONTENT - - - - - - - - - - - - - - 
-        System.out.println("Content: " + answer.getContent());
-        System.out.println("Author: " + answer.getAuthor());
+        System.out.println("Content: " + review.getContent());
+        System.out.println("Author: " + review.getAuthor());
         
-        Label header = new Label(answer.getAuthor() + "'s Post");
-        Button updateButton = new Button("Update Answer");
-        Button deleteButton = new Button("Delete Answer");
-        Button reviewButton = new Button("Review Answer");
-		Label contentText = new Label(answer.getContent());
+        Answer ans = new Answer(0, "", "");
+		
+		try {
+			ans = databaseHelper.readAnswerById(answer.getId());
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+        
+        Label title = new Label(ans.getContent());
+        Label author = new Label("By : " + ans.getAuthor());
+        Label header = new Label("Your Review: ");
+        Button updateButton = new Button("Update review");
+        Button deleteButton = new Button("Delete review");
+        Button messageButton = new Button("Send message");
+		Label contentText = new Label(review.getContent());
 
 		
 		updateButton.setOnAction(a -> {
-			new UpdateAnswerPage(databaseHelper).show(primaryStage, user, question, answer);
+			System.out.println("updating");
+//			new UpdateReviewPage(databaseHelper).show(primaryStage, user, answer, review);
 		});
 		
 		deleteButton.setOnAction(a -> {
 			
 			// Add a warming that this action can not be undone
 			  Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION, 
-	    	            "Are you sure you want to delete this answer?\n This action can not be undone!" , ButtonType.YES, ButtonType.NO);
+	    	            "Are you sure you want to delete this review?\n This action can not be undone!" , ButtonType.YES, ButtonType.NO);
 	    	        confirmationAlert.setTitle("Confirm Deletion");
 
 	    	        //check the response
@@ -109,23 +116,18 @@ public class IndividualAnswerPage {
 	    	            if (response == ButtonType.YES) {
 	    	                // Proceed with deletion if user confirms
 
-	    	            	databaseHelper.deleteAnswer(answer.getId());
-	    	    			try {
-	    	    				new IndividualQuestionPage(databaseHelper).show(primaryStage, user, question);
-	    	    			} catch (SQLException e) {
-	    	    				// TODO Auto-generated catch block
-	    	    				e.printStackTrace();
-	    	    			}
+	    	            	databaseHelper.deleteQuestionReview(review.getId());
+	    	    			new HomePage(databaseHelper).show(primaryStage, user);
 	    	    			
 	    	                }
 	    	            });
 				
 		});
 		
-		reviewButton.setOnAction(a -> {
-			new CreateAnswerReview(databaseHelper).show(primaryStage, user, question, answer);
+		messageButton.setOnAction(a ->{
+			System.out.println("sending message to " + review.getAuthor());
+//			new CreateMessage(databaseHelper).showReviewer(primaryStage, user, answer, review);
 		});
-	
 		
 		// - - - - - - - - - - - - - - - CONTENT - - - - - - - - - - - - - - 
         
@@ -133,15 +135,43 @@ public class IndividualAnswerPage {
 		HBox buttonContainer = new HBox();
 		buttonContainer.setAlignment(javafx.geometry.Pos.TOP_RIGHT);
         
-		if(user.isReviewer()) {
-        	buttonContainer.getChildren().addAll(updateButton, deleteButton, reviewButton);
-		}
-		
-		else if (user.getUserName().equals(answer.getAuthor())) {
-        	buttonContainer.getChildren().addAll(updateButton, deleteButton);
+        if (user.getUserName().equals(review.getAuthor()) || user.isReviewer()) {
+        	buttonContainer.getChildren().addAll(updateButton, deleteButton, messageButton);
         }
         
-        VBox centerContent = new VBox(10, header, buttonContainer, contentText);
+        // - - - - - - - - - - - - - - - RATING - - - - - - - - - - - - - - 
+        
+        // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        
+        double averageRating = databaseHelper.getAverageRatingsForAllReviews()
+                .getOrDefault(review.getId(), 0.0);
+        Label averageRatingLabel = new Label("Average Rating: " + String.format("%.1f", averageRating));
+        averageRatingLabel.setStyle("-fx-text-fill: darkgreen;");
+
+        // STUDENT RATING SECTION
+        Label rateLabel = new Label("Rate this review (1–10):");
+        ComboBox<Integer> ratingCombo = new ComboBox<>();
+        ratingCombo.getItems().addAll(java.util.stream.IntStream.rangeClosed(1, 10).boxed().toList());
+
+        Button submitRating = new Button("Submit Rating");
+        submitRating.setOnAction(e -> {
+            Integer rating = ratingCombo.getValue();
+            if (rating == null) {
+                showAlert("Please select a rating before submitting.");
+                return;
+            }
+
+            try {
+                databaseHelper.addOrUpdateAnswerReviewRating(review.getId(), user.getUserName(), rating);
+                showAlert("Rating submitted!");
+                new ReviewsList(databaseHelper).show(primaryStage, user);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                showAlert("Error submitting rating.");
+            }
+        });
+        
+        VBox centerContent = new VBox(10, buttonContainer, title, author, header, contentText, averageRatingLabel, rateLabel, ratingCombo, submitRating);
         centerContent.setStyle("-fx-padding: 20px;");
 
         BorderPane borderPane = new BorderPane();
@@ -153,5 +183,12 @@ public class IndividualAnswerPage {
         primaryStage.setTitle("Forums");
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+    
+    private void showAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

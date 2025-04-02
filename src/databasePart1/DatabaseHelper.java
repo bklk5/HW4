@@ -139,7 +139,7 @@ public class DatabaseHelper {
 	    	    + "FOREIGN KEY (receiver) REFERENCES cse360users(userName) ON DELETE CASCADE)";
 	    statement.execute(messagesTable); 
 	    
-	    //table for ratings
+	    //table for ratings for questions 
 	    String reviewRatingsTable = "CREATE TABLE IF NOT EXISTS ReviewRatings (" +
 	    	    "id INT AUTO_INCREMENT PRIMARY KEY, " +
 	    	    "review_id INT NOT NULL, " +
@@ -149,6 +149,18 @@ public class DatabaseHelper {
 	    	    "CONSTRAINT fk_review FOREIGN KEY (review_id) REFERENCES Reviews(id) ON DELETE CASCADE" +
 	    	    ")";
 	    	statement.execute(reviewRatingsTable);
+	    	
+		//table for ratings for answers 
+    	String answerReviewRatingsTable = "CREATE TABLE IF NOT EXISTS AnswerReviewRatings (" +
+    		    "id INT AUTO_INCREMENT PRIMARY KEY, " +
+    		    "review_id INT NOT NULL, " +
+    		    "student_username VARCHAR(255) NOT NULL, " +
+    		    "rating INT NOT NULL, " +
+    		    "CONSTRAINT unique_answer_review_student UNIQUE (review_id, student_username), " +
+    		    "CONSTRAINT fk_answer_review FOREIGN KEY (review_id) REFERENCES AnswerReviews(id) ON DELETE CASCADE" +
+    		    ")";
+    		statement.execute(answerReviewRatingsTable);
+	    
 
 	}
 
@@ -1393,6 +1405,34 @@ public class DatabaseHelper {
 		     Map<Integer, Double> avgRatings = new HashMap<>();
 
 		     String query = "SELECT review_id, AVG(rating) AS avg_rating FROM ReviewRatings GROUP BY review_id";
+		     try (Statement stmt = connection.createStatement();
+		          ResultSet rs = stmt.executeQuery(query)) {
+		         while (rs.next()) {
+		             avgRatings.put(rs.getInt("review_id"), rs.getDouble("avg_rating"));
+		         }
+		     }
+
+		     return avgRatings;
+		 }
+		 
+		// Add or update a rating for an answer review
+		 public void addOrUpdateAnswerReviewRating(int reviewId, String studentUsername, int rating) throws SQLException {
+		     connectToDatabase();
+		     String query = "MERGE INTO AnswerReviewRatings (review_id, student_username, rating) KEY (review_id, student_username) VALUES (?, ?, ?)";
+		     try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+		         pstmt.setInt(1, reviewId);
+		         pstmt.setString(2, studentUsername);
+		         pstmt.setInt(3, rating);
+		         pstmt.executeUpdate();
+		     }
+		 }
+
+		 // Get average ratings for all answer reviews
+		 public Map<Integer, Double> getAverageRatingsForAllAnswerReviews() throws SQLException {
+		     connectToDatabase();
+		     Map<Integer, Double> avgRatings = new HashMap<>();
+
+		     String query = "SELECT review_id, AVG(rating) AS avg_rating FROM AnswerReviewRatings GROUP BY review_id";
 		     try (Statement stmt = connection.createStatement();
 		          ResultSet rs = stmt.executeQuery(query)) {
 		         while (rs.next()) {
