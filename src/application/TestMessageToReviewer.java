@@ -24,8 +24,8 @@ class TestMessageToReviewer {
 		message = new ArrayList<>();
 		student = new User("student", "passwordStudent", false, true, false, false, false);
 		question = new Question("question title", "question content", "question author", "question category");
-		review = new Review(1, "review author", "review content");
-		different_review = new Review(2, "different review author", "different review content");
+		review = new QuestionReview(1, "review author", "review content");
+		different_review = new QuestionReview(2, "different review author", "different review content");
 	}
 	
 	/**

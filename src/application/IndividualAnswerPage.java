@@ -89,6 +89,7 @@ public class IndividualAnswerPage {
         Label header = new Label(answer.getAuthor() + "'s Post");
         Button updateButton = new Button("Update Answer");
         Button deleteButton = new Button("Delete Answer");
+        Button reviewButton = new Button("Review Answer");
 		Label contentText = new Label(answer.getContent());
 
 		
@@ -120,6 +121,10 @@ public class IndividualAnswerPage {
 	    	            });
 				
 		});
+		
+		reviewButton.setOnAction(a -> {
+			new CreateAnswerReview(databaseHelper).show(primaryStage, user, question, answer);
+		});
 	
 		
 		// - - - - - - - - - - - - - - - CONTENT - - - - - - - - - - - - - - 
@@ -128,7 +133,11 @@ public class IndividualAnswerPage {
 		HBox buttonContainer = new HBox();
 		buttonContainer.setAlignment(javafx.geometry.Pos.TOP_RIGHT);
         
-        if (user.getUserName().equals(answer.getAuthor()) || user.isCurrentRoleReviewer()) {
+		if(user.isReviewer()) {
+        	buttonContainer.getChildren().addAll(updateButton, deleteButton, reviewButton);
+		}
+		
+		else if (user.getUserName().equals(answer.getAuthor())) {
         	buttonContainer.getChildren().addAll(updateButton, deleteButton);
         }
         

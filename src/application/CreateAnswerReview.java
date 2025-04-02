@@ -8,14 +8,14 @@ import java.sql.SQLException;
 
 import databasePart1.*;
 
-public class CreateReview {
+public class CreateAnswerReview {
 	private final DatabaseHelper databaseHelper;
 
-    public CreateReview(DatabaseHelper databaseHelper) {
+    public CreateAnswerReview(DatabaseHelper databaseHelper) {
         this.databaseHelper = databaseHelper;
     }
 
-    public void show(Stage primaryStage, User user, Question question) {
+    public void show(Stage primaryStage, User user,Question question, Answer answer) {
     	try {
             databaseHelper.connectToDatabase(); // Connect to the database
             if (databaseHelper.isDatabaseEmpty()) {
@@ -28,7 +28,7 @@ public class CreateReview {
         }
         
     	// Input fields for userName and password
-    	Label questionLabel = new Label("Reviewing question : " + question.getTitle());
+    	Label questionLabel = new Label("Reviewing answer : " + answer.getContent());
 
         TextField contentField = new TextField();
         contentField.setPromptText("Enter content");
@@ -44,7 +44,7 @@ public class CreateReview {
         //Go back to the question page
         backButton.setOnAction(a ->{
         	try {
-				new IndividualQuestionPage(databaseHelper).show(primaryStage, user, question);
+				new IndividualAnswerPage(databaseHelper).show(primaryStage, user, question, answer);
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -60,10 +60,10 @@ public class CreateReview {
             	
             	if(AnswerRecognizer.checkAnswer(content).equals("")) {
                 	// Create a new Question object with parameters and insert into table
-                	Review review = new Review(question.getId(), author, content);
-                    databaseHelper.createReview(review);
+                	AnswerReview review = new AnswerReview(answer.getId(), author, content);
+                    databaseHelper.createAnswerReview(review);
                     
-                    new IndividualQuestionPage(databaseHelper).show(primaryStage, user, question);
+                    new IndividualAnswerPage(databaseHelper).show(primaryStage, user, question, answer);
             	}
             	else {
             		errorLabel.setText(AnswerRecognizer.checkAnswer(content));

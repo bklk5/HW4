@@ -12,6 +12,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -72,8 +74,11 @@ public class ReviewsList {
         
         // - - - - - - - - - - - - - - - CONTENT - - - - - - - - - - - - - - 
     	// Set up listview to show list of question titles
-        ObservableList<Review> items = FXCollections.observableArrayList();
-		ListView<Review> listView = new ListView<>(items);
+        ObservableList<QuestionReview> questionItems = FXCollections.observableArrayList();
+		ListView<QuestionReview> questionListview = new ListView<>(questionItems);
+		
+        ObservableList<AnswerReview> answerItems = FXCollections.observableArrayList();
+		ListView<AnswerReview> answerListview = new ListView<>(answerItems);
 
 		try {
 		    databaseHelper.connectToDatabase(); // Connect to the database
@@ -83,28 +88,38 @@ public class ReviewsList {
 		        return; // Exit early if database is empty
 		    } else {
 		        // Get reviews directly from the database and add to the observable list
-		        List<Review> reviews = databaseHelper.getAllReviews(user.getUserName());
+		        List<QuestionReview> reviews = databaseHelper.getQuestionReviewsByAuthor(user.getUserName());
+		        List<AnswerReview>  aReviews = databaseHelper.getAnswerReviewsByAuthor(user.getUserName());
 		        
 		        // Inject ratings
                 Map<Integer, Double> avgRatings = databaseHelper.getAverageRatingsForAllReviews();
-                for (Review review : reviews) {
+                for (QuestionReview review : reviews) {
                     double avg = avgRatings.getOrDefault(review.getId(), 0.0);
+                    review.setAverageRating(avg);
+                }
+                
+                Map<Integer, Double> answerRatings = databaseHelper.getAverageRatingsForAllAnswerReviews();
+                for (AnswerReview review : aReviews) {
+                    double avg = answerRatings.getOrDefault(review.getId(), 0.0);
                     review.setAverageRating(avg);
                 }
 
                 // Sort reviews by average rating (descending)
                 reviews.sort((a, b) -> Double.compare(b.getAverageRating(), a.getAverageRating()));
+                aReviews.sort((a, b) -> Double.compare(b.getAverageRating(), a.getAverageRating()));
 
-		        items.addAll(reviews);
+		        questionItems.addAll(reviews);
+		        answerItems.addAll(aReviews);
+		        
 		    }
 		} catch (SQLException e) {
 		    System.out.println(e.getMessage());
 		}
         
         // Set custom cell factory to display questions in a readable way
-		listView.setCellFactory(param -> new ListCell<Review>() {
+		questionListview.setCellFactory(param -> new ListCell<QuestionReview>() {
             @Override
-            protected void updateItem(Review review, boolean empty) {
+            protected void updateItem(QuestionReview review, boolean empty) {
                 super.updateItem(review, empty);
                 
                 if (empty || review == null) {
@@ -129,11 +144,39 @@ public class ReviewsList {
                 }
             }
         });
+		
+		answerListview.setCellFactory(param -> new ListCell<AnswerReview>() {
+            @Override
+            protected void updateItem(AnswerReview review, boolean empty) {
+                super.updateItem(review, empty);
+                
+                if (empty || review == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    // set question for each review
+            		Answer a = new Answer(0, "", "");
+            		
+                	try {
+                		a = databaseHelper.readAnswerById(review.getAnswerId());
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+                	
+                    Label contentLabel = new Label("Answer : " + a.getContent());
+                    Label ratingLabel = new Label("Average Rating: " + String.format("%.1f", review.getAverageRating()));
+                    contentLabel.setWrapText(true); // Enable text wrapping
+                    
+                    VBox cellContent = new VBox(10,contentLabel, ratingLabel);
+                    setGraphic(cellContent);
+                }
+            }
+        });
         
         // Handle button for listview upon clicking
-        listView.setOnMouseClicked(a -> {
+        questionListview.setOnMouseClicked(a -> {
         	if (a.getClickCount() >= 2) {
-                Review selectedItem = listView.getSelectionModel().getSelectedItem();
+                QuestionReview selectedItem = questionListview.getSelectionModel().getSelectedItem();
         		Question q = new Question("", "", "", "");
         		
 				try {
@@ -154,13 +197,46 @@ public class ReviewsList {
                 }
         	}
         });
+        
+        answerListview.setOnMouseClicked(a -> {
+            if (a.getClickCount() >= 2) {
+                AnswerReview selectedItem = answerListview.getSelectionModel().getSelectedItem();
+                if (selectedItem != null) {
+                    try {
+                        Answer answer = databaseHelper.readAnswerById(selectedItem.getAnswerId());
+						new IndividualReviewPage(databaseHelper).showAnswerReview(primaryStage, user, answer, selectedItem);
+
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
 	    // - - - - - - - - - - - - - - - CONTENT END  - - - - - - - - - - - - - - 
 
         
         
 
         // - - - - - - - - - - - - - - - GENERAL LAYOUT FOR PAGES - - - - - - - - - - - - - - 
-        VBox centerContent = new VBox(10, new Label("Reviews"), listView);
+     // Create TabPane for different review types
+        TabPane tabPane = new TabPane();
+                
+        // Tab for Question Reviews
+        Tab questionReviewsTab = new Tab("Question Reviews");
+        questionReviewsTab.setClosable(false);
+                
+        // Tab for Answer Reviews
+        Tab answerReviewsTab = new Tab("Answer Reviews");
+        answerReviewsTab.setClosable(false);
+        
+        questionReviewsTab.setContent(questionListview);
+        answerReviewsTab.setContent(answerListview);
+
+        // Add the tabs to the TabPane
+        tabPane.getTabs().addAll(questionReviewsTab, answerReviewsTab);
+
+        // Use tabPane in the main layout
+        VBox centerContent = new VBox(10, new Label("My Reviews"), tabPane);
         centerContent.setStyle("-fx-padding: 20px;");
 
         BorderPane borderPane = new BorderPane();
