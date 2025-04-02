@@ -1,28 +1,32 @@
 package application;
 
+import java.sql.SQLException;
+
 import databasePart1.DatabaseHelper;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import java.util.List;
 
 
 /**
- * AdminPage class represents the user interface for the admin user.
- * This page displays a simple welcome message for the admin.
+ * This page displays the list of trusted reviewers for each page
  */
 
-public class HomePage {
+public class TrustedReviewersPage {
 	
 	private final DatabaseHelper databaseHelper;
 
-    public HomePage(DatabaseHelper databaseHelper) {
+    public TrustedReviewersPage(DatabaseHelper databaseHelper) {
         this.databaseHelper = databaseHelper;
     }
 	/**
-     * Displays the admin page in the provided primary stage.
+     * Displays the trusted reviewers page in the provided primary stage.
      * @param primaryStage The primary stage where the scene will be displayed.
      */
     public void show(Stage primaryStage, User user) {
@@ -74,62 +78,110 @@ public class HomePage {
         
         
         // - - - - - - - - - - - - - - - CONTENT - - - - - - - - - - - - - - 
-        Label welcomeText = new Label("Welcome " + user.getUserName() + "!");
-	    Button inviteButton = new Button("Invite");
-	    Button oneTimePasswordButton = new Button("One Time Password");
-	    Button listUsersButton = new Button("List Users");
-	    Button removeUsersButton = new Button("Remove Users");
-	    Button updateRoleButton = new Button("Update Role");
-	    Button requestReviewerRoleButton = new Button("Request Reviewer Access");
+        Label welcomeText = new Label("Welcome Student,  " + user.getUserName() + "!");
+        Button addButton = new Button("Add reviewer");
+        Button removeButton = new Button("Remove reviewer");
+        Button trustedSearch = new Button("Search trusted reviewers reviews");
 	    
 	    // styling 
 	    welcomeText.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
 	   
-	    // Go to the invite page
-        inviteButton.setOnAction(a -> {
-            new InvitationPage().show(databaseHelper, primaryStage);
+	    // Set up listview to show list of trusted reviewers 
+    	ObservableList<String> items = FXCollections.observableArrayList();
+    	ListView<String> listView = new ListView<>(items);
+
+        try {
+            databaseHelper.connectToDatabase(); // Connect to the database
+
+            if (databaseHelper.isDatabaseEmpty()) {
+                new FirstPage(databaseHelper).show(primaryStage);
+                return; // Exit early if database is empty
+            } else {
+            	List<String> trustedReviewers = databaseHelper.getTrustedReviewers(user.getUserName());
+                items.addAll(trustedReviewers);
+
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        
+        // Set custom cell factory to display questions in a readable way
+        listView.setCellFactory(param -> new javafx.scene.control.ListCell<String>() {
+            @Override
+            protected void updateItem(String rn, boolean empty) {
+                super.updateItem(rn, empty);
+                if (empty || rn == null) {
+                    setText(null);
+                } else {
+                    setText("Reviewer Name: " + rn);
+                }
+            }
         });
-	    // Go to the one time password page
-        oneTimePasswordButton.setOnAction(a -> {
-            //page and feature need implementation
-        	new AdminOnetimePassword().show(databaseHelper, primaryStage);
+        
+	    // dropdown for adding trusted reviewer
+        ComboBox <String> reviewerComboBox = new ComboBox<>();
+        ObservableList<String> items2 = FXCollections.observableArrayList();
+        
+        try {
+        	List<String> allReviewers = databaseHelper.getAllReviewers();
         	
+        	if (allReviewers.isEmpty()) {
+                System.out.println("no reviewers found");
+            } else {
+                System.out.println("reviewers: " + allReviewers);  // Debugging
+            }
+        	
+        	items2.addAll(allReviewers);
+        	reviewerComboBox.setItems(items2);
+        }
+        catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        
+	    // Add reviewer 
+        addButton.setOnAction(a -> {
+        	String selectedReviewer =reviewerComboBox.getValue();
+        	
+        	if (selectedReviewer != null) {
+                boolean added = databaseHelper.addTrustedReviewer(user.getUserName(), selectedReviewer);
+                if (added) {
+                        if (!items.contains(selectedReviewer)) { 
+                            items.add(selectedReviewer);
+                        }
+                    reviewerComboBox.setValue(null);
+                } else {
+                    System.out.println("not added.");
+                }
+            } else {
+                System.out.println("select reviewer");
+            }
         });
-        // Go to the list of user page
-        listUsersButton.setOnAction(a -> {
-        	new AdminUserListPage(databaseHelper).show(primaryStage);
-        	//page and feature need implementation
-        });
-        // Go to remove users page
-        removeUsersButton.setOnAction(a -> {
-        	//page and feature need implementation
-        	new DeleteUserPage().show(databaseHelper, primaryStage);
-        });
-        // Go to update role page
-        updateRoleButton.setOnAction(a -> {
-        	//page and feature need implementation
-        	new UpdateRolesPage().show(databaseHelper, primaryStage);
-        });
-        // Student request to become a reviewer
-        requestReviewerRoleButton.setOnAction(a -> {
-        	databaseHelper.add_remove_Role(user.getUserName(), "add", "requestReviewerRole");
-        	// alert student the request was made
-	        Alert requestAlert = new Alert(Alert.AlertType.INFORMATION);
-	        requestAlert.setTitle("Reviewer Role request");
-	        requestAlert.setContentText("A request to become a reviewer was send to the instructor! ");
-	        requestAlert.setHeaderText("");
-	        requestAlert.showAndWait();
-	        
-	        requestReviewerRoleButton.setVisible(false);
+
+	    // Remove reviewer 
+        removeButton.setOnAction(a -> {
+        	String selectedReviewer = listView.getSelectionModel().getSelectedItem();
+            if (selectedReviewer != null) {
+                boolean removed = databaseHelper.deleteTrustedReviewer(user.getUserName(), selectedReviewer);
+                if (removed) {
+                    items.remove(selectedReviewer);
+                } else {
+                    System.out.println("not removed.");
+                }
+            } else {
+                System.out.println("select reviewer.");
+            }
         });
 
     	
-    	if (user.isCurrentRoleAdmin()) {
-    		System.out.println("USER IS ADMIN");
+    	if (user.isCurrentRoleStudent()) {
+    		System.out.println("USER IS STUDENT");
     	}
     	else {
-    		System.out.println("USER IS NOT ADMIN");
+    		System.out.println("USER IS NOT STUDENT");
     	}
+    	// Search by trusted reviewer
+    	trustedSearch.setOnAction(a -> new trustedSearchPage(databaseHelper).show(primaryStage, user));
+    	
     	
     	// set on action with reviewersButton
     	VBox layout = new VBox();
@@ -145,15 +197,7 @@ public class HomePage {
 	    
         // - - - - - - - - - - - - - - - GENERAL LAYOUT FOR PAGES - - - - - - - - - - - - - -
         VBox centerContent = new VBox(10, welcomeText);
-        
-        // conditionally render options for user depending on their role
-        if (user.isCurrentRoleAdmin()) {
-        	centerContent.getChildren().addAll(inviteButton,oneTimePasswordButton,listUsersButton,removeUsersButton,updateRoleButton);
-        }
-        if(user.isCurrentRoleStudent() && !user.isReviewer() && !databaseHelper.isUserRequestingtoBecomeReviewer(user.getUserName())) {
-        	centerContent.getChildren().add(requestReviewerRoleButton);
-        }
-        
+        centerContent.getChildren().addAll(reviewerComboBox, addButton,removeButton,trustedSearch, listView);
         
         centerContent.setStyle("-fx-padding: 20px;");
 
