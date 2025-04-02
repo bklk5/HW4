@@ -16,12 +16,12 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.control.ListCell;
 
-public class SearchQuestions {
+public class trustedSearchPage {
     private final DatabaseHelper databaseHelper;
     private ListView<Question> questionsListView = new ListView<>(); 
     private TextField searchField = new TextField();
 
-    public SearchQuestions(DatabaseHelper databaseHelper) {
+    public trustedSearchPage(DatabaseHelper databaseHelper) {
         this.databaseHelper = databaseHelper;
     }
 
@@ -140,8 +140,6 @@ public class SearchQuestions {
             e.printStackTrace();
             questionsListView.getItems().add(new Question("Error loading questions", "", searchText, searchText)); //ERROR SYSTEM
         }
-        
-        
-        
+           
     }
 }

@@ -113,7 +113,7 @@ public class DatabaseHelper {
 	    		+ "FOREIGN KEY (question_id) REFERENCES Questions(id) ON DELETE CASCADE);";
 	    statement.execute(reviewsTable); 
 	    
-	    
+
 	    String answerReviewsTable = "CREATE TABLE IF NOT EXISTS AnswerReviews ("
 	    		+ "id INT AUTO_INCREMENT PRIMARY KEY, "
 	    		+ "answer_id INT NOT NULL, "
@@ -122,10 +122,18 @@ public class DatabaseHelper {
 	    		+ "FOREIGN KEY (answer_id) REFERENCES Answers(id) ON DELETE CASCADE);";
 	    statement.execute(answerReviewsTable); 
 	    
-	    // Table for trusted reviewers
+	    // Table for reviewers
 	    String reviewersTable = "CREATE TABLE IF NOT EXISTS Reviewers ("
 	    		+ "name VARCHAR(100) NOT NULL, "
 	    		+ "weight INT NOT NULL)";
+	    statement.execute(reviewersTable);
+	    
+	 // Table for trusted reviewers 
+	    String trustedReviewers = "CREATE TABLE IF NOT EXISTS TrustedReviewers ("
+	    		+ "student_username VARCHAR(100) NOT NULL,"
+	    		+ "reviewer_name VARCHAR(100) NOT NULL, "
+	    		+ "FOREIGN KEY (student_username) REFERENCES Users(userName) ON DELETE CASCADE,"
+	    		+ "FOREIGN KEY (reviewer_name) REFERENCES Reviewers(name) ON DELETE CASCADE);";
 	    statement.execute(reviewersTable);
 
 	    // table for messages
@@ -606,7 +614,7 @@ public class DatabaseHelper {
 	    } catch (SQLException e) {
 	        e.printStackTrace();
 	    }
-	    return result; // Database emtpy
+	    return result; // Database empty
 		
 	}
 	
@@ -1441,7 +1449,146 @@ public class DatabaseHelper {
 		     }
 
 		     return avgRatings;
+		 }		 
+
+
+//- - - - - - - - - - - - - - - REVIEWERS METHODS - - - - - - - - - - - - - - - - - 
+		 // get list of all reviewers
+		 public List<String> getAllReviewers() throws SQLException {
+			    String query = "SELECT name,weight FROM Reviewers";
+			    List<String> reviewers = new ArrayList<>();
+
+			    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			      
+			        ResultSet rs = pstmt.executeQuery();
+
+			        if (!rs.isBeforeFirst()) {  
+			            System.out.println("No reviewers yet.");
+			            return reviewers; 
+			            }
+
+			        while (rs.next()) {
+			            String n = rs.getString("name");
+			            int w = rs.getInt("weight");
+			            reviewers.add(n +", " +w);
+			        }
+			    }
+			    return reviewers;
+			} 
+		 // selects reviewers only into reviewers table from all users 
+		 public void selectReviewers(){
+			 String query1 = "SELECT userName FROM cse360users WHERE reviewerRole=TRUE";
+			 // add query for getting rating 
+			 String query2 = "INSERT INTO Reviewers (name,weight) VALUES (?,?)";
+			 
+			 try (PreparedStatement psmst = connection.prepareStatement(query1);
+			      ResultSet rs = psmst.executeQuery();
+			      PreparedStatement psmst2 = connection.prepareStatement(query2)) {
+				 int count=0;
+			     while(rs.next()){
+			    	 String userName = rs.getString("userName");
+			    	 if(isUserReviewer(userName)){
+			    		 psmst2.setString(1, userName);
+			    		 psmst2.executeUpdate();
+			    		 count++;
+			    	 }
+			     }
+			     System.out.println("Reviewers added"); 
+			 } catch (SQLException e) {
+				 System.err.println("Error populating Reviewers table: " + e.getMessage());
+				 e.printStackTrace();
+			  }
 		 }
+//- - - - - - - - - - - - - - - REVIEWERS METHODS END - - - - - - - - - - - - - - - - - 
 		 
-		 
+//- - - - - - - - - - - - - - - TRUSTED REVIEWERS METHODS - - - - - - - - - - - - - - - - - 
+		// add trusted reviewer
+		 public boolean addTrustedReviewer(String student_username, String reviewerName) {
+			System.out.println("Adding trusted reviewer " + reviewerName + " to student" + student_username +" trusted reviewer list");
+			
+			String query = "SELECT name FROM Reviewers WHERE name,weight = ?,?";
+			
+			try(PreparedStatement pstmt = connection.prepareStatement(query)) {
+				pstmt.setString(1, reviewerName);
+				ResultSet rs = pstmt.executeQuery();
+				
+				if (!rs.isBeforeFirst()) {  
+		            System.out.println("No reviewers yet.");
+		            return false; 
+		            }
+			}catch (SQLException e) {
+		        System.err.println("SQL Error during chekcing if selected reviewer exists: " + e.getMessage());
+		        e.printStackTrace();
+		        return false;
+			}
+			String query2 = "INSERT INTO TrustedReviewers (student_username, reviewer_name) VALUES (?,?)";
+			
+			try(PreparedStatement pstmt2 = connection.prepareStatement(query2)) {
+				pstmt2.setString(1, student_username);
+				pstmt2.setString(2, reviewerName);
+				
+				int rowsInserted = pstmt2.executeUpdate();
+				
+		        if (rowsInserted > 0) {
+		            System.out.println("trusted reviewer added");
+		            return true;
+		        } else {
+		            System.out.println("not added");
+		            return false;
+		        }
+			}
+			catch (SQLException e) {
+		        System.err.println("SQL Error during adding trusted reviewer: " + e.getMessage());
+		        e.printStackTrace();
+		        return false;
+			}
+		}
+		 // remove trusted reviewer
+		public boolean deleteTrustedReviewer(String student_username, String reviewerName) {
+		System.out.println("Deleting"+ reviewerName + " from " + student_username + "trusted reviewer list");
+		
+		String query = "DELETE FROM TrustedReviewers WHERE student_username = ? AND review_name = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+	        pstmt.setString(1, student_username);
+	        pstmt.setString(2, reviewerName);
+	        int rowsDeleted = pstmt.executeUpdate(); 
+	
+	        if (rowsDeleted > 0) {
+	            System.out.println("trusted reviewer deleted successfully");
+	            return true;
+	        } else {
+	            System.out.println("Reviewer " + reviewerName + "not found in trusted list");
+	            return false;
+	        }
+	    } catch (SQLException e) {
+	        System.err.println("SQL Error during deletion: " + e.getMessage());
+	        e.printStackTrace();
+	        return false;
+	    }
+		
+	}
+		// list of trusted reviewers 
+		public List<String> getTrustedReviewers(String student_username) throws SQLException {
+		    String query = "SELECT reviewer_name FROM TrustedReviewers WHERE student_username = ?";
+		    List<String> trustedreviewers = new ArrayList<>();
+
+		    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+		        pstmt.setString(1, student_username);
+		        ResultSet rs = pstmt.executeQuery();
+
+		        if (!rs.isBeforeFirst()) {  
+		            System.out.println("no trusted reviewers.");
+		            return trustedreviewers; 
+		            }
+
+		        while (rs.next()) {
+		            String n = rs.getString("reviewer_name");
+		            trustedreviewers.add(n);
+		        }
+		    }
+		    return trustedreviewers;
+		}
+
+	// - - - - - - - - - - - - - - - REVIEWERS METHODS END  - - - - - - - - - - - - - - - - -
+	
 }

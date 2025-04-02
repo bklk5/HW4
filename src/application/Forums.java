@@ -45,6 +45,7 @@ public class Forums {
     	forumsButton.setOnAction(a -> new Forums(databaseHelper).show(primaryStage, user));
     	searchButton.setOnAction(e -> new SearchQuestions(databaseHelper).show(primaryStage, user));
     	// set on action with reviewersListButton
+    	reviewersListButton.setOnAction(a -> new TrustedReviewersPage(databaseHelper).show(primaryStage,user));
     	messagesButton.setOnAction(a -> new MessagesPage(databaseHelper).show(primaryStage,user));
         logoutButton.setOnAction(a -> new SetupLoginSelectionPage(databaseHelper).show(primaryStage));
         reviewsListButton.setOnAction(a -> new ReviewsList(databaseHelper).show(primaryStage, user));
@@ -55,15 +56,19 @@ public class Forums {
         
         if(user.isCurrentRoleReviewer()) {
         	rightContainer.setPrefWidth(310);
-        	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, searchButton, reviewsListButton, rightContainer);
+        	toolbar.getItems().addAll(homeButton, forumsButton,messagesButton, searchButton, reviewsListButton, rightContainer);
         }
         else if(user.isCurrentRoleInstructor()) {
         	rightContainer.setPrefWidth(260);
-        	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, searchButton, reviewerRequest, rightContainer);
+        	toolbar.getItems().addAll(homeButton, forumsButton,messagesButton, searchButton, reviewerRequest, rightContainer);
+        }
+        else if(user.isCurrentRoleStudent()) {
+        	rightContainer.setPrefWidth(260);
+        	toolbar.getItems().addAll(homeButton, forumsButton,reviewersListButton,messagesButton, searchButton, rightContainer);
         }
         else {
         	rightContainer.setPrefWidth(380);
-        	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, searchButton, rightContainer);
+        	toolbar.getItems().addAll(homeButton, forumsButton,messagesButton, searchButton, rightContainer);
         }
         // - - - - - - - - - - - - - - - NAV BAR - - - - - - - - - - - - - - 
     	
