@@ -49,11 +49,11 @@ public class StudentQuestionsAndAnswers {
     	// Create the Top Navigation Bar
         ToolBar toolbar = new ToolBar();
         
-        if(user.isReviewer()) {
+        if(user.isCurrentRoleReviewer()) {
         	rightContainer.setPrefWidth(310);
         	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, searchButton, reviewsListButton, rightContainer);
         }
-        if(user.isInstructor()) {
+        else if(user.isCurrentRoleInstructor()) {
         	rightContainer.setPrefWidth(260);
         	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, searchButton, reviewerRequest, rightContainer);
         }
