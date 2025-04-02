@@ -8,10 +8,10 @@ import java.sql.SQLException;
 
 import databasePart1.*;
 
-public class CreateReview {
+public class CreateQuestionReview {
 	private final DatabaseHelper databaseHelper;
 
-    public CreateReview(DatabaseHelper databaseHelper) {
+    public CreateQuestionReview(DatabaseHelper databaseHelper) {
         this.databaseHelper = databaseHelper;
     }
 
@@ -60,8 +60,8 @@ public class CreateReview {
             	
             	if(AnswerRecognizer.checkAnswer(content).equals("")) {
                 	// Create a new Question object with parameters and insert into table
-                	Review review = new Review(question.getId(), author, content);
-                    databaseHelper.createReview(review);
+                	QuestionReview review = new QuestionReview(question.getId(), author, content);
+                    databaseHelper.createQuestionReview(review);
                     
                     new IndividualQuestionPage(databaseHelper).show(primaryStage, user, question);
             	}

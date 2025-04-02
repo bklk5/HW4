@@ -116,11 +116,11 @@ public class IndividualQuestionsReviewsPage {
 		});
 		
 		reviewButton.setOnAction(a -> {
-			new CreateReview(databaseHelper).show(primaryStage, user, question);
+			new CreateQuestionReview(databaseHelper).show(primaryStage, user, question);
 		});
 		
-		ObservableList<Review> items = FXCollections.observableArrayList();
-		ListView<Review> listView = new ListView<>(items);
+		ObservableList<QuestionReview> items = FXCollections.observableArrayList();
+		ListView<QuestionReview> listView = new ListView<>(items);
 
 		try {
 		    databaseHelper.connectToDatabase(); // Connect to the database
@@ -130,7 +130,7 @@ public class IndividualQuestionsReviewsPage {
 		        return; // Exit early if database is empty
 		    } else {
 		        // Get reviews directly from the database and add to the observable list
-		        List<Review> reviews = databaseHelper.getReviewsByQuestionId(question.getId());
+		        List<QuestionReview> reviews = databaseHelper.getQuestionReviewsByQuestionId(question.getId());
 		        items.addAll(reviews);
 		    }
 		} catch (SQLException e) {
@@ -155,9 +155,9 @@ public class IndividualQuestionsReviewsPage {
         	}
         });
         
-        listView.setCellFactory(param -> new ListCell<Review>() {
+        listView.setCellFactory(param -> new ListCell<QuestionReview>() {
             @Override
-            protected void updateItem(Review review, boolean empty) {
+            protected void updateItem(QuestionReview review, boolean empty) {
                 super.updateItem(review, empty);
                 
                 if (empty || review == null) {

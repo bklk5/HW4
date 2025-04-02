@@ -115,7 +115,7 @@ public class IndividualReviewPage {
 	    	            if (response == ButtonType.YES) {
 	    	                // Proceed with deletion if user confirms
 
-	    	            	databaseHelper.deleteReview(review.getId());
+	    	            	databaseHelper.deleteQuestionReview(review.getId());
 	    	    			try {
 	    	    				new IndividualQuestionPage(databaseHelper).show(primaryStage, user, question);
 	    	    			} catch (SQLException e) {

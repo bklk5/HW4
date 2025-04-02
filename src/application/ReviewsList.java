@@ -72,8 +72,8 @@ public class ReviewsList {
         
         // - - - - - - - - - - - - - - - CONTENT - - - - - - - - - - - - - - 
     	// Set up listview to show list of question titles
-        ObservableList<Review> items = FXCollections.observableArrayList();
-		ListView<Review> listView = new ListView<>(items);
+        ObservableList<QuestionReview> items = FXCollections.observableArrayList();
+		ListView<QuestionReview> listView = new ListView<>(items);
 
 		try {
 		    databaseHelper.connectToDatabase(); // Connect to the database
@@ -83,11 +83,11 @@ public class ReviewsList {
 		        return; // Exit early if database is empty
 		    } else {
 		        // Get reviews directly from the database and add to the observable list
-		        List<Review> reviews = databaseHelper.getAllReviews(user.getUserName());
+		        List<QuestionReview> reviews = databaseHelper.getQuestionReviewsByAuthor(user.getUserName());
 		        
 		        // Inject ratings
                 Map<Integer, Double> avgRatings = databaseHelper.getAverageRatingsForAllReviews();
-                for (Review review : reviews) {
+                for (QuestionReview review : reviews) {
                     double avg = avgRatings.getOrDefault(review.getId(), 0.0);
                     review.setAverageRating(avg);
                 }
@@ -102,9 +102,9 @@ public class ReviewsList {
 		}
         
         // Set custom cell factory to display questions in a readable way
-		listView.setCellFactory(param -> new ListCell<Review>() {
+		listView.setCellFactory(param -> new ListCell<QuestionReview>() {
             @Override
-            protected void updateItem(Review review, boolean empty) {
+            protected void updateItem(QuestionReview review, boolean empty) {
                 super.updateItem(review, empty);
                 
                 if (empty || review == null) {
@@ -133,7 +133,7 @@ public class ReviewsList {
         // Handle button for listview upon clicking
         listView.setOnMouseClicked(a -> {
         	if (a.getClickCount() >= 2) {
-                Review selectedItem = listView.getSelectionModel().getSelectedItem();
+                QuestionReview selectedItem = listView.getSelectionModel().getSelectedItem();
         		Question q = new Question("", "", "", "");
         		
 				try {

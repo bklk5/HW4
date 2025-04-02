@@ -70,7 +70,7 @@ public class UpdateReviewPage {
 	        	String content = contentField.getText();
 				
 	        	if(AnswerRecognizer.checkAnswer(content).equals("")) {
-	        		boolean update = databaseHelper.updateReview(review.getId(), content);
+	        		boolean update = databaseHelper.updateQuestionReview(review.getId(), content);
 	                
 					if (update ) {
 						new IndividualQuestionPage(databaseHelper).show(primaryStage, user, question);

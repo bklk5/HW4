@@ -1,57 +1,52 @@
 package application;
 
-public class Review {
-	private int id;
-	private int questionId;
-	private String content;
-	private String author;
-	
-	// CREATE METHOD (constructor)
-	public Review(int questionId, String author, String content) {
-		this.questionId = questionId;
-		this.author = author;
-		this.content = content;
-	}
-	
-	// GETTER METHODS 
-	public int getId() {
-		return this.id;
-	}
-	
-	public int getQuestionId() {
-		return this.questionId;
-	}
+public abstract class Review {
+    private int id;
+    private String content;
+    private String author;
+    private double averageRating;
 
-	public String getContent() {
-		return this.content;
-	}
-	
-	public String getAuthor() {
-		return this.author;
-	}
-  	
-	// UPDATE METHODS
-	public void setAuthor(String author) {
-		this.author = author;
-	}
-	
-	public void setAnswer(String content) {
-		this.content = content;
-	}
-	
-	public void setId(int id) {
-		this.id = id;
-	}
-	
-	//RATING METHODS
-	private double averageRating;
+    // Constructor
+    public Review(String author, String content) {
+        this.author = author;
+        this.content = content;
+    }
 
-	public double getAverageRating() {
-	    return averageRating;
-	}
+    // GETTER METHODS
+    public int getId() {
+        return this.id;
+    }
 
-	public void setAverageRating(double averageRating) {
-	    this.averageRating = averageRating;
-	}
+    public String getContent() {
+        return this.content;
+    }
+
+    public String getAuthor() {
+        return this.author;
+    }
+    
+    public double getAverageRating() {
+        return averageRating;
+    }
+
+    // UPDATE METHODS
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+    
+    public void setAverageRating(double averageRating) {
+        this.averageRating = averageRating;
+    }
+    
+    // Abstract method to be implemented by subclasses
+    public abstract String getContentType();
+    public abstract int getContentId();
 }
-	
