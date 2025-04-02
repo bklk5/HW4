@@ -116,7 +116,7 @@ public class IndividualReviewPage {
 	    	                // Proceed with deletion if user confirms
 
 	    	            	databaseHelper.deleteQuestionReview(review.getId());
-	    	    			new HomePage(databaseHelper).show(primaryStage, user);
+	    	    			new ReviewsList(databaseHelper).show(primaryStage, user);
 	    	    			
 	    	                }
 	    	            });
@@ -274,7 +274,7 @@ public class IndividualReviewPage {
 	    	                // Proceed with deletion if user confirms
 
 	    	            	databaseHelper.deleteAnswerReview(review.getId());
-	    	    			new HomePage(databaseHelper).show(primaryStage, user);
+	    	    			new ReviewsList(databaseHelper).show(primaryStage, user);
 	    	    			
 	    	                }
 	    	            });

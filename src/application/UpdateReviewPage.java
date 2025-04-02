@@ -73,7 +73,7 @@ public class UpdateReviewPage {
 	        		boolean update = databaseHelper.updateQuestionReview(review.getId(), content);
 	                
 					if (update ) {
-						new HomePage(databaseHelper).show(primaryStage, user);
+						new ReviewsList(databaseHelper).show(primaryStage, user);
 					}
 	        	}
 	        	else {
@@ -151,7 +151,7 @@ public class UpdateReviewPage {
 	        		boolean update = databaseHelper.updateAnswerReview(review.getId(), content);
 	                
 					if (update ) {
-						new HomePage(databaseHelper).show(primaryStage, user);
+						new ReviewsList(databaseHelper).show(primaryStage, user);
 					}
 	        	}
 	        	else {
