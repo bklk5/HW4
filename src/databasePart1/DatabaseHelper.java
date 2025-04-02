@@ -132,9 +132,10 @@ public class DatabaseHelper {
 	    String trustedReviewers = "CREATE TABLE IF NOT EXISTS TrustedReviewers ("
 	    		+ "student_username VARCHAR(100) NOT NULL,"
 	    		+ "reviewer_name VARCHAR(100) NOT NULL, "
-	    		+ "FOREIGN KEY (student_username) REFERENCES Users(userName) ON DELETE CASCADE,"
+	    		+ "PRIMARY KEY (student_username, reviewer_name),"
+	    		+ "FOREIGN KEY (student_username) REFERENCES cse360users(userName) ON DELETE CASCADE,"
 	    		+ "FOREIGN KEY (reviewer_name) REFERENCES Reviewers(name) ON DELETE CASCADE);";
-	    statement.execute(reviewersTable);
+	    statement.execute(trustedReviewers);
 
 	    // table for messages
 	    String messagesTable = "CREATE TABLE IF NOT EXISTS Messages ("
@@ -1455,7 +1456,7 @@ public class DatabaseHelper {
 //- - - - - - - - - - - - - - - REVIEWERS METHODS - - - - - - - - - - - - - - - - - 
 		 // get list of all reviewers
 		 public List<String> getAllReviewers() throws SQLException {
-			    String query = "SELECT name,weight FROM Reviewers";
+			    String query = "SELECT name FROM Reviewers";
 			    List<String> reviewers = new ArrayList<>();
 
 			    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
@@ -1469,8 +1470,8 @@ public class DatabaseHelper {
 
 			        while (rs.next()) {
 			            String n = rs.getString("name");
-			            int w = rs.getInt("weight");
-			            reviewers.add(n +", " +w);
+			            //int w = rs.getInt("weight");
+			            reviewers.add(n);
 			        }
 			    }
 			    return reviewers;
@@ -1479,23 +1480,21 @@ public class DatabaseHelper {
 		 public void selectReviewers(){
 			 String query1 = "SELECT userName FROM cse360users WHERE reviewerRole=TRUE";
 			 // add query for getting rating 
-			 String query2 = "INSERT INTO Reviewers (name,weight) VALUES (?,?)";
+			 String query2 = "INSERT INTO Reviewers (name,weight) VALUES (?,0)";
 			 
 			 try (PreparedStatement psmst = connection.prepareStatement(query1);
 			      ResultSet rs = psmst.executeQuery();
 			      PreparedStatement psmst2 = connection.prepareStatement(query2)) {
-				 int count=0;
 			     while(rs.next()){
 			    	 String userName = rs.getString("userName");
 			    	 if(isUserReviewer(userName)){
 			    		 psmst2.setString(1, userName);
 			    		 psmst2.executeUpdate();
-			    		 count++;
 			    	 }
 			     }
-			     System.out.println("Reviewers added"); 
+			     System.out.println("reviewers added"); 
 			 } catch (SQLException e) {
-				 System.err.println("Error populating Reviewers table: " + e.getMessage());
+				 System.err.println("Error adding reviewers: " + e.getMessage());
 				 e.printStackTrace();
 			  }
 		 }
@@ -1506,7 +1505,7 @@ public class DatabaseHelper {
 		 public boolean addTrustedReviewer(String student_username, String reviewerName) {
 			System.out.println("Adding trusted reviewer " + reviewerName + " to student" + student_username +" trusted reviewer list");
 			
-			String query = "SELECT name FROM Reviewers WHERE name,weight = ?,?";
+			String query = "SELECT name FROM Reviewers WHERE name = ?";
 			
 			try(PreparedStatement pstmt = connection.prepareStatement(query)) {
 				pstmt.setString(1, reviewerName);
@@ -1547,7 +1546,7 @@ public class DatabaseHelper {
 		public boolean deleteTrustedReviewer(String student_username, String reviewerName) {
 		System.out.println("Deleting"+ reviewerName + " from " + student_username + "trusted reviewer list");
 		
-		String query = "DELETE FROM TrustedReviewers WHERE student_username = ? AND review_name = ?";
+		String query = "DELETE FROM TrustedReviewers WHERE student_username = ? AND reviewer_name = ?";
 		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
 	        pstmt.setString(1, student_username);
 	        pstmt.setString(2, reviewerName);
