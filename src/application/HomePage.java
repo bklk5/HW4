@@ -145,7 +145,7 @@ public class HomePage {
         if (user.isCurrentRoleAdmin()) {
         	centerContent.getChildren().addAll(inviteButton,oneTimePasswordButton,listUsersButton,removeUsersButton,updateRoleButton);
         }
-        if(user.isCurrentRoleStudent() && !user.isReviewer()) {
+        if(user.isCurrentRoleStudent() && !user.isReviewer() && !databaseHelper.isUserRequestingtoBecomeReviewer(user.getUserName())) {
         	centerContent.getChildren().add(requestReviewerRoleButton);
         }
         

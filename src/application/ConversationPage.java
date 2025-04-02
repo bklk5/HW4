@@ -32,13 +32,45 @@ public class ConversationPage {
     	Button homeButton = new Button("Home");
     	Button forumsButton = new Button("Forums");
     	Button messagesButton = new Button("Messages");
+    	Button logoutButton = new Button("Logout");
+    	Button searchButton = new Button("Search");
+    	Button reviewersListButton = new Button("Trusted Reviewers List");
+    	Button reviewerRequest  = new Button("Reviewer Requests");
+    	
+    	// container to right align logout button
+    	HBox rightContainer = new HBox(logoutButton);
+    	rightContainer.setAlignment(javafx.geometry.Pos.TOP_RIGHT);
     	
     	homeButton.setOnAction(a -> new HomePage(databaseHelper).show(primaryStage, user));
     	forumsButton.setOnAction(a -> new Forums(databaseHelper).show(primaryStage, user));
     	messagesButton.setOnAction(a -> new MessagesPage(databaseHelper).show(primaryStage,user));
+    	searchButton.setOnAction(e -> new SearchQuestions(databaseHelper).show(primaryStage, user));
+    	
+    	// set on action with reviewersListButton
+    	messagesButton.setOnAction(a -> new MessagesPage(databaseHelper).show(primaryStage,user));
+        logoutButton.setOnAction(a -> new SetupLoginSelectionPage(databaseHelper).show(primaryStage));
+        reviewersListButton.setOnAction(a -> new ReviewsList(databaseHelper).show(primaryStage, user));
+        reviewerRequest.setOnAction(a -> new displayStudentsRequestForReviewerRole(databaseHelper).show(primaryStage, user));
     	
     	// Create the Top Navigation Bar
-        ToolBar toolbar = new ToolBar(homeButton, forumsButton, messagesButton);
+        ToolBar toolbar = new ToolBar();
+        
+        if(user.isCurrentRoleReviewer()) {
+        	rightContainer.setPrefWidth(310);
+        	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, searchButton, reviewersListButton, rightContainer);
+        }
+        else if(user.isCurrentRoleInstructor()) {
+        	rightContainer.setPrefWidth(260);
+        	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, searchButton, reviewerRequest, rightContainer);
+        }
+        else {
+        	rightContainer.setPrefWidth(380);
+        	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, searchButton, rightContainer);
+        }
+        
+        
+        
+        
         // - - - - - - - - - - - - - - - NAV BAR - - - - - - - - - - - - - - 
     	
         
