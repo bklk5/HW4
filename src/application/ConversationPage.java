@@ -36,6 +36,7 @@ public class ConversationPage {
     	Button searchButton = new Button("Search");
     	Button reviewersListButton = new Button("Trusted Reviewers List");
     	Button reviewerRequest  = new Button("Reviewer Requests");
+    	Button reviewsListButton = new Button("Reviews");
     	
     	// container to right align logout button
     	HBox rightContainer = new HBox(logoutButton);
@@ -51,13 +52,13 @@ public class ConversationPage {
         logoutButton.setOnAction(a -> new SetupLoginSelectionPage(databaseHelper).show(primaryStage));
         reviewersListButton.setOnAction(a -> new ReviewsList(databaseHelper).show(primaryStage, user));
         reviewerRequest.setOnAction(a -> new displayStudentsRequestForReviewerRole(databaseHelper).show(primaryStage, user));
-    	
+        reviewsListButton.setOnAction(a -> new ReviewsList(databaseHelper).show(primaryStage, user));
     	// Create the Top Navigation Bar
         ToolBar toolbar = new ToolBar();
         
         if(user.isCurrentRoleReviewer()) {
         	rightContainer.setPrefWidth(310);
-        	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, searchButton, reviewersListButton, rightContainer);
+        	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, searchButton,reviewsListButton, rightContainer);
         }
         else if(user.isCurrentRoleInstructor()) {
         	rightContainer.setPrefWidth(260);
