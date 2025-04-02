@@ -204,11 +204,8 @@ public class ReviewsList {
                 if (selectedItem != null) {
                     try {
                         Answer answer = databaseHelper.readAnswerById(selectedItem.getAnswerId());
-                        if (answer != null) {
-                            Question q = databaseHelper.readQuestionById(answer.getQuestionId());
-                            // Navigate to the individual answer review page
-                            new IndividualReviewAnswerPage(databaseHelper).show(primaryStage, user,answer, selectedItem);
-                        }
+						new IndividualReviewPage(databaseHelper).showAnswerReview(primaryStage, user, answer, selectedItem);
+
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }

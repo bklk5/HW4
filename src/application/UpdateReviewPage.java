@@ -73,7 +73,85 @@ public class UpdateReviewPage {
 	        		boolean update = databaseHelper.updateQuestionReview(review.getId(), content);
 	                
 					if (update ) {
-						new IndividualQuestionPage(databaseHelper).show(primaryStage, user, question);
+						new HomePage(databaseHelper).show(primaryStage, user);
+					}
+	        	}
+	        	else {
+            		errorLabel.setText(AnswerRecognizer.checkAnswer(content));
+	        	}
+                
+            } catch (SQLException e) {
+                System.err.println("Database error: " + e.getMessage());
+                e.printStackTrace();
+            }
+		});
+		// - - - - - - - - - - - - - - - CONTENT - - - - - - - - - - - - - - 
+        
+        // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+        
+        VBox centerContent = new VBox(10, header, contentField, updateButton, errorLabel);
+        centerContent.setStyle("-fx-padding: 20px;");
+
+        BorderPane borderPane = new BorderPane();
+        borderPane.setTop(toolbar);      // Add navigation bar
+        borderPane.setCenter(centerContent); // Main content area
+
+        // Set the Scene and Show
+        Scene scene = new Scene(borderPane, 800, 600);
+        primaryStage.setTitle("Forums");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+    
+    public void showAnswerReview(Stage primaryStage, User user, Answer answer, Review review) {
+    	try {
+            databaseHelper.connectToDatabase(); // Connect to the database
+            if (databaseHelper.isDatabaseEmpty()) {
+            	new FirstPage(databaseHelper).show(primaryStage);
+            } else {
+            	databaseHelper.printQuestions();
+            }
+        } catch (SQLException e) {
+        	System.out.println(e.getMessage());
+        }
+    	
+    	// - - - - - - - - - - - - - - - NAV BAR - - - - - - - - - - - - - - 
+    	// Set up buttons for top nav bar 
+    	Button homeButton = new Button("Home");
+    	Button forumsButton = new Button("Forums");
+    	
+    	homeButton.setOnAction(a -> new HomePage(databaseHelper).show(primaryStage, user));
+    	forumsButton.setOnAction(a -> new Forums(databaseHelper).show(primaryStage, user));
+    	
+    	// Create the Top Navigation Bar
+        ToolBar toolbar = new ToolBar(homeButton, forumsButton);
+        // - - - - - - - - - - - - - - - NAV BAR - - - - - - - - - - - - - - 
+        
+        // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        
+        // - - - - - - - - - - - - - - - CONTENT - - - - - - - - - - - - - -
+        Label header = new Label("Update Review");
+        TextField contentField = new TextField(review.getContent());
+        contentField.setPromptText("Enter content");
+        contentField.setPrefHeight(100);
+
+        Button updateButton = new Button("Update Review");
+        
+        // Label to display error messages
+        Label errorLabel = new Label();
+        errorLabel.setStyle("-fx-text-fill: red; -fx-font-size: 12px;");
+		
+		updateButton.setOnAction(a -> {
+			try {
+				// retrieve user input
+	        	String content = contentField.getText();
+				
+	        	if(AnswerRecognizer.checkAnswer(content).equals("")) {
+	        		boolean update = databaseHelper.updateAnswerReview(review.getId(), content);
+	                
+					if (update ) {
+						new HomePage(databaseHelper).show(primaryStage, user);
 					}
 	        	}
 	        	else {
