@@ -135,7 +135,7 @@ public class DatabaseHelper {
 	    		+ "reviewer_name VARCHAR(100) NOT NULL, "
 	    		+ "PRIMARY KEY (student_username, reviewer_name),"
 	    		+ "FOREIGN KEY (student_username) REFERENCES cse360users(userName) ON DELETE CASCADE,"
-	    		+ "FOREIGN KEY (reviewer_name) REFERENCES Reviewers(name) ON DELETE CASCADE);";
+	    		+ "FOREIGN KEY (reviewer_name) REFERENCES cse360users(userName) ON DELETE CASCADE);";
 	    statement.execute(trustedReviewers);
 
 	    // table for messages
