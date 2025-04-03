@@ -1,11 +1,11 @@
 CACTUSGAMER12 and CharlyRapin are the same student.
 
 # Links for screencasts: 
-Screencast 1: 	 
+Screencast 1: 	 (UML screencast)
 https://asu.zoom.us/rec/share/wQOW-j5WaPnN2ILf6pocqlQyCZNUiUVkoTMVZixSS70mqH3OVu5kBJnuOO5dT5_v.1lijkiAvPZphkJh8?startTime=1743652433000 
 Passcode: jYx%7wa5 
 
-Screencast 2:  
+Screencast 2:  (Technical screencast) 
 https://asu.zoom.us/rec/share/9VUvJ9xlaQdOHJf2ZwPBEEx6DUlvjB5PTKlhwBUzCOJGz0kQpuzgw_N3A3JBnIo.3dlEaQYganfXTaqI  
 Passcode: 8P17?^WJ  
 
