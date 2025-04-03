@@ -191,7 +191,7 @@ public class IndividualQuestionsWithReviewsPage {
         HBox buttonContainer = new HBox();
         buttonContainer.setAlignment(javafx.geometry.Pos.TOP_RIGHT);
         
-        if (user.getUserName().equals(question.getAuthor()) || user.isReviewer()) {
+        if (user.getUserName().equals(question.getAuthor()) || user.isCurrentRoleReviewer()) {
         	buttonContainer.getChildren().addAll(updateButton, deleteButton,questionsButton);
         }
         
