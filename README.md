@@ -3,6 +3,10 @@ CACTUSGAMER12 and CharlyRapin are the same student.
 # Links for screencasts: 
 
 Weekly meeting:
+3/26/25: 
+https://asu.zoom.us/rec/share/r53u6NM_YUtDjAwO5iGtBMck_2CRCsjaqaf0-gy8y9_jWnSCwsTBfrmzKPS6s8ht.AKeI0caJ_79tZVpJ
+Passcode: CLj.$K1X
+
 3/29/25: 
 https://asu.zoom.us/rec/share/qviQAQvXYR52UI2sr9j_nQ5lBuqk-x_drMz4yY4eOovmip8SmylhdwKkxxzXxd34.z3v1SynQHPPhrLV2
 Passcode: Tu+MFU2N
