@@ -1488,8 +1488,7 @@ public class DatabaseHelper {
 			
 			try(PreparedStatement pstmt = connection.prepareStatement(query)) {
 				pstmt.setString(1, student_username);
-				pstmt.setString(1, reviewerName);
-				ResultSet rs = pstmt.executeQuery();
+				pstmt.setString(2, reviewerName);
 				
 				int rowsInserted = pstmt.executeUpdate();
 				

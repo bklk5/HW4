@@ -74,7 +74,7 @@ public class trustedSearchPage {
 
        //SEARCH BAR
         searchField.setPromptText("Enter keywords to search...");
-        Button searchButton = new Button("Search");
+        Button searchButton = new Button("Trusted Search");
         HBox searchBar = new HBox(10, searchField, searchButton);
         searchBar.setStyle("-fx-padding: 10px;");
 

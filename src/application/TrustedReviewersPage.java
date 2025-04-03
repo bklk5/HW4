@@ -160,7 +160,7 @@ public class TrustedReviewersPage {
 
 	    // Remove reviewer 
         removeButton.setOnAction(a -> {
-        	String selectedReviewer = listView.getSelectionModel().getSelectedItem();
+        	String selectedReviewer = reviewerComboBox.getValue();
             if (selectedReviewer != null) {
                 boolean removed = databaseHelper.deleteTrustedReviewer(user.getUserName(), selectedReviewer);
                 if (removed) {
