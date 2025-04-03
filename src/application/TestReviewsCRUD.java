@@ -1,5 +1,7 @@
 package application;
 
+
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
@@ -10,6 +12,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.sql.SQLException;
 import databasePart1.*;
+
+/**
+ * Test class for testing CRUD operations for Reviews in the database.
+ * This class tests both QuestionReview and AnswerReview operations.
+ */
 
 class TestReviewsCRUD {
     private DatabaseHelper databaseHelper;
