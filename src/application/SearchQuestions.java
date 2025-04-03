@@ -60,15 +60,19 @@ public class SearchQuestions {
         
         if(user.isCurrentRoleReviewer()) {
         	rightContainer.setPrefWidth(310);
-        	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, navSearch, reviewsListButton, rightContainer);
+        	toolbar.getItems().addAll(homeButton, forumsButton,messagesButton, navSearch, reviewsListButton, rightContainer);
         }
         else if(user.isCurrentRoleInstructor()) {
         	rightContainer.setPrefWidth(260);
-        	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, navSearch, reviewerRequest, rightContainer);
+        	toolbar.getItems().addAll(homeButton, forumsButton,messagesButton, navSearch, reviewerRequest, rightContainer);
+        }
+        else if(user.isCurrentRoleStudent()) {
+        	rightContainer.setPrefWidth(260);
+        	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, navSearch, rightContainer);
         }
         else {
         	rightContainer.setPrefWidth(380);
-        	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, navSearch, rightContainer);
+        	toolbar.getItems().addAll(homeButton, forumsButton,messagesButton, navSearch, rightContainer);
         }
         // - - - - - - - - - - - - - - - NAV BAR - - - - - - - - - - - - - - 
 

@@ -68,15 +68,19 @@ public class IndividualAnswerPage {
         
         if(user.isCurrentRoleReviewer()) {
         	rightContainer.setPrefWidth(310);
-        	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, searchButton, reviewsListButton, rightContainer);
+        	toolbar.getItems().addAll(homeButton, forumsButton,messagesButton, searchButton, reviewsListButton, rightContainer);
         }
         else if(user.isCurrentRoleInstructor()) {
         	rightContainer.setPrefWidth(260);
-        	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, searchButton, reviewerRequest, rightContainer);
+        	toolbar.getItems().addAll(homeButton, forumsButton,messagesButton, searchButton, reviewerRequest, rightContainer);
+        }
+        else if(user.isCurrentRoleStudent()) {
+        	rightContainer.setPrefWidth(260);
+        	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, searchButton, rightContainer);
         }
         else {
         	rightContainer.setPrefWidth(380);
-        	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, searchButton, rightContainer);
+        	toolbar.getItems().addAll(homeButton, forumsButton,messagesButton, searchButton, rightContainer);
         }
         // - - - - - - - - - - - - - - - NAV BAR - - - - - - - - - - - - - - 
         

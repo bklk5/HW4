@@ -65,7 +65,7 @@ public class HomePage {
         }
         else if(user.isCurrentRoleStudent()) {
         	rightContainer.setPrefWidth(260);
-        	toolbar.getItems().addAll(homeButton, forumsButton,reviewersListButton,messagesButton, searchButton, rightContainer);
+        	toolbar.getItems().addAll(homeButton, forumsButton, reviewersListButton,messagesButton, searchButton, rightContainer);
         }
         else {
         	rightContainer.setPrefWidth(380);
