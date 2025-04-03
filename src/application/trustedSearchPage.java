@@ -112,7 +112,7 @@ public class trustedSearchPage {
 
         homeButton.setOnAction(e -> new HomePage(databaseHelper).show(primaryStage, user));
         forumsButton.setOnAction(e -> new Forums(databaseHelper).show(primaryStage, user));
-        searchButton.setOnAction(e -> performSearch());
+        searchButton.setOnAction(e -> performSearch(user));
         
         layout.setTop(toolbar);
         layout.setCenter(questionBox);
@@ -124,22 +124,33 @@ public class trustedSearchPage {
         primaryStage.show();
     }
     	//SEARCH FUNCTION 
-    private void performSearch() {
-    	
-        String searchText = searchField.getText().trim().toLowerCase();
-        
+    private void performSearch(User user) {
+    	String searchText = searchField.getText().trim().toLowerCase();
         questionsListView.getItems().clear();
         try {
-            List<Question> questions = databaseHelper.getQuestions(); //FETCHES AND LISTS ALL THE QUESTIONS
-            for (Question question : questions) {
-                if (question.getTitle().toLowerCase().contains(searchText) || question.getContent().toLowerCase().contains(searchText)) {
+            List<String> trustedReviewers = databaseHelper.getTrustedReviewers(user.getUserName());
+            List<Question> allQuestions = databaseHelper.getQuestions();
+            for (Question question : allQuestions) {
+                boolean matchesSearch = question.getTitle().toLowerCase().contains(searchText)
+                        || question.getContent().toLowerCase().contains(searchText);
+                boolean hasTrustedReview = false;
+                for (String reviewer : trustedReviewers) {
+                    List<QuestionReview> reviewsByReviewer = databaseHelper.getQuestionReviewsByAuthor(reviewer);
+                    for (QuestionReview review : reviewsByReviewer) {
+                        if (review.getQuestionId() == question.getId()) {
+                            hasTrustedReview = true;
+                            break;
+                        }
+                    }
+                    if (hasTrustedReview) break;
+                }
+                if (matchesSearch && hasTrustedReview) {
                     questionsListView.getItems().add(question);
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            questionsListView.getItems().add(new Question("Error loading questions", "", searchText, searchText)); //ERROR SYSTEM
+            questionsListView.getItems().add(new Question("Error loading questions", "", searchText, searchText));
         }
-           
     }
 }

@@ -81,7 +81,7 @@ public class TrustedReviewersPage {
         Label welcomeText = new Label("Welcome Student,  " + user.getUserName() + "!");
         Button addButton = new Button("Add reviewer");
         Button removeButton = new Button("Remove reviewer");
-        Button trustedSearch = new Button("Search trusted reviewers reviews");
+        Button trustedSearch = new Button("Search by trusted reviewers");
 	    
 	    // styling 
 	    welcomeText.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
