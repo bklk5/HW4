@@ -124,8 +124,9 @@ public class DatabaseHelper {
 	    
 	    // Table for reviewers
 	    String reviewersTable = "CREATE TABLE IF NOT EXISTS Reviewers ("
+	    		+ "id INT AUTO_INCREMENT PRIMARY KEY,"
 	    		+ "name VARCHAR(100) NOT NULL, "
-	    		+ "weight INT NOT NULL)";
+	    		+ "weight INT DEFAULT 0)";
 	    statement.execute(reviewersTable);
 	    
 	 // Table for trusted reviewers 
@@ -1456,7 +1457,7 @@ public class DatabaseHelper {
 //- - - - - - - - - - - - - - - REVIEWERS METHODS - - - - - - - - - - - - - - - - - 
 		 // get list of all reviewers
 		 public List<String> getAllReviewers() throws SQLException {
-			    String query = "SELECT name FROM Reviewers";
+			    String query = "SELECT userName FROM cse360users WHERE reviewerRole = TRUE";
 			    List<String> reviewers = new ArrayList<>();
 
 			    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
@@ -1469,35 +1470,13 @@ public class DatabaseHelper {
 			            }
 
 			        while (rs.next()) {
-			            String n = rs.getString("name");
+			            String n = rs.getString("userName");
 			            //int w = rs.getInt("weight");
 			            reviewers.add(n);
 			        }
 			    }
 			    return reviewers;
 			} 
-		 // selects reviewers only into reviewers table from all users 
-		 public void selectReviewers(){
-			 String query1 = "SELECT userName FROM cse360users WHERE reviewerRole=TRUE";
-			 // add query for getting rating 
-			 String query2 = "INSERT INTO Reviewers (name,weight) VALUES (?,0)";
-			 
-			 try (PreparedStatement psmst = connection.prepareStatement(query1);
-			      ResultSet rs = psmst.executeQuery();
-			      PreparedStatement psmst2 = connection.prepareStatement(query2)) {
-			     while(rs.next()){
-			    	 String userName = rs.getString("userName");
-			    	 if(isUserReviewer(userName)){
-			    		 psmst2.setString(1, userName);
-			    		 psmst2.executeUpdate();
-			    	 }
-			     }
-			     System.out.println("reviewers added"); 
-			 } catch (SQLException e) {
-				 System.err.println("Error adding reviewers: " + e.getMessage());
-				 e.printStackTrace();
-			  }
-		 }
 //- - - - - - - - - - - - - - - REVIEWERS METHODS END - - - - - - - - - - - - - - - - - 
 		 
 //- - - - - - - - - - - - - - - TRUSTED REVIEWERS METHODS - - - - - - - - - - - - - - - - - 
@@ -1505,28 +1484,14 @@ public class DatabaseHelper {
 		 public boolean addTrustedReviewer(String student_username, String reviewerName) {
 			System.out.println("Adding trusted reviewer " + reviewerName + " to student" + student_username +" trusted reviewer list");
 			
-			String query = "SELECT name FROM Reviewers WHERE name = ?";
+			String query = "INSERT INTO TrustedReviewers (student_username, reviewer_name) VALUES (?, ?)";
 			
 			try(PreparedStatement pstmt = connection.prepareStatement(query)) {
+				pstmt.setString(1, student_username);
 				pstmt.setString(1, reviewerName);
 				ResultSet rs = pstmt.executeQuery();
 				
-				if (!rs.isBeforeFirst()) {  
-		            System.out.println("No reviewers yet.");
-		            return false; 
-		            }
-			}catch (SQLException e) {
-		        System.err.println("SQL Error during chekcing if selected reviewer exists: " + e.getMessage());
-		        e.printStackTrace();
-		        return false;
-			}
-			String query2 = "INSERT INTO TrustedReviewers (student_username, reviewer_name) VALUES (?,?)";
-			
-			try(PreparedStatement pstmt2 = connection.prepareStatement(query2)) {
-				pstmt2.setString(1, student_username);
-				pstmt2.setString(2, reviewerName);
-				
-				int rowsInserted = pstmt2.executeUpdate();
+				int rowsInserted = pstmt.executeUpdate();
 				
 		        if (rowsInserted > 0) {
 		            System.out.println("trusted reviewer added");
@@ -1553,7 +1518,7 @@ public class DatabaseHelper {
 	        int rowsDeleted = pstmt.executeUpdate(); 
 	
 	        if (rowsDeleted > 0) {
-	            System.out.println("trusted reviewer deleted successfully");
+	            System.out.println("deleted successfully");
 	            return true;
 	        } else {
 	            System.out.println("Reviewer " + reviewerName + "not found in trusted list");

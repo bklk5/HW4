@@ -140,7 +140,8 @@ public class TrustedReviewersPage {
         
 	    // Add reviewer 
         addButton.setOnAction(a -> {
-        	String selectedReviewer =reviewerComboBox.getValue();
+        	
+        	String selectedReviewer = reviewerComboBox.getValue();
         	
         	if (selectedReviewer != null) {
                 boolean added = databaseHelper.addTrustedReviewer(user.getUserName(), selectedReviewer);
