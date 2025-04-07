@@ -6,6 +6,7 @@ public class Answer {
 	private String content;
 	private String author;
 	private int upvotes;
+	private boolean flagged;
 	
 	// CREATE METHOD (constructor)
 	public Answer(int questionId, String author, String content) {
@@ -34,6 +35,10 @@ public class Answer {
 	public int getUpvotes() {
 		return this.upvotes;
 	}
+	
+	public boolean isFlagged() {
+		return this.flagged;
+	}
   	
 	// UPDATE METHODS
 	public void setAuthor(String author) {
@@ -50,6 +55,10 @@ public class Answer {
 	
 	public void setId(int id) {
 		this.id = id;
+	}
+	
+	public void setFlagged(boolean flagged) {
+		this.flagged = flagged;
 	}
 }
 	

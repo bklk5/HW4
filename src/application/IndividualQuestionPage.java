@@ -160,6 +160,7 @@ public class IndividualQuestionPage {
                 super.updateItem(a, empty);
                 
         		ToggleButton upvoteButton = new ToggleButton("⇧"); 
+        		
         		Label voteCount = new Label(); 
         		
         		VBox voteBox = new VBox(10, upvoteButton, voteCount); 
@@ -180,15 +181,52 @@ public class IndividualQuestionPage {
         			
         		});
                 
+        		ToggleButton warningButton = new ToggleButton("Community violation warning");
                 
+                warningButton.setOnAction(b -> {
+                	boolean warningState = warningButton.isSelected();
+                		if(warningState) {
+                			setStyle("-fx-background-color: #ffcccc;");
+                			warningButton.setText("Remove warning");
+                			databaseHelper.setAnswerFlagged(a.getId(), warningState);
+                			System.out.println("is this violation button pushed: " + warningState);
+                			a.setFlagged(warningState);
+                			System.out.println("is the answer flagged: " + a.isFlagged());
+                		} else {
+                			setStyle("");
+                			warningButton.setText("Community violation warning");
+                			System.out.println("is this violation button pushed: " + warningState);
+                			System.out.println("is the answer flagged: " + a.isFlagged());
+                		}
+                		try {
+                			items.setAll(databaseHelper.readAnswersByQuestionId(question.getId()));
+                		} catch (SQLException e1) {
+                			e1.printStackTrace();
+                		}
+                	});
+        		          
                 
                 if (empty || a == null) {
                     setText(null);
+                    setGraphic(null);
+                    setStyle("");
                 } else {
                 	voteCount.setText(String.valueOf(databaseHelper.getUpvote(a.getId())));
                     setText("Answer: " + a.getContent());
-                    HBox voteSpacing = new HBox(10, voteBox);
-                    setGraphic(voteSpacing);
+                    
+                    HBox cellContentLayout; 
+                    if(user.isCurrentRoleStaff()) {
+                    	cellContentLayout = new HBox(10, voteBox, warningButton);
+                    } else {
+                    	cellContentLayout = new HBox(10, voteBox);
+                    	if (a.isFlagged()) {
+                    		setStyle("-fx-background-color: #ffcccc;");
+                    	} else {
+                    		setStyle("");
+                    	}
+                    }
+                    setGraphic(cellContentLayout);
+                    
                     
                 }
             }
@@ -220,6 +258,7 @@ public class IndividualQuestionPage {
         if (user.getUserName().equals(question.getAuthor()) || user.isCurrentRoleReviewer()) {
         	buttonContainer.getChildren().addAll(updateButton, deleteButton, reviewsButton);
         }
+        
         
         VBox centerContent = new VBox(10, buttonContainer, authorText, questionText, contentText, answerButton, messageButton, listView);
         centerContent.setStyle("-fx-padding: 20px;");

@@ -42,7 +42,6 @@ public class DatabaseHelper {
 			connection = DriverManager.getConnection(DB_URL, USER, PASS);
 			statement = connection.createStatement(); 
 			// You can use this command to clear the database and restart from fresh.
-			//statement.execute("DROP ALL OBJECTS");
 
 			createTables();  // Create the necessary tables if they don't exist
 		} catch (ClassNotFoundException e) {
@@ -102,6 +101,7 @@ public class DatabaseHelper {
 	    		+ "author VARCHAR(100) NOT NULL, " 
 	    		+ "content TEXT NOT NULL, " 
 	    		+ "upvotes INT DEFAULT 0, "
+	    		+ "flagged BOOLEAN DEFAULT FALSE, "
 	    		+ "FOREIGN KEY (question_id) REFERENCES Questions(id) ON DELETE CASCADE);";
 	    statement.execute(answersTable); 
 	    
@@ -819,12 +819,13 @@ public class DatabaseHelper {
 		public boolean createAnswer(Answer answer) {
 			System.out.println("Inserting answer for question with id " + answer.getQuestionId());
 			
-			String query = "INSERT INTO Answers (question_id, author, content, upvotes) VALUES (?, ?, ?, 0)";
+			String query = "INSERT INTO Answers (question_id, author, content, upvotes, flagged) VALUES (?, ?, ?, 0, false)";
 			
 			try(PreparedStatement pstmt = connection.prepareStatement(query)) {
 				pstmt.setInt(1, answer.getQuestionId());
 				pstmt.setString(2, answer.getAuthor());
 				pstmt.setString(3, answer.getContent());
+				
 				
 				int rowsInserted = pstmt.executeUpdate();
 				
@@ -960,6 +961,20 @@ public class DatabaseHelper {
 		        return 0;
 		    }
 		}
+		
+		public void setAnswerFlagged(int answerId, boolean flagged) {
+			String query = "UPDATE Answers SET flagged = ? WHERE id = ?";
+			try(PreparedStatement pstmt = connection.prepareStatement(query)){
+				pstmt.setBoolean(1, flagged);
+				pstmt.setInt(2, answerId);
+				pstmt.executeUpdate();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				System.err.println("SQL Error during update: " + e.getMessage());
+		        e.printStackTrace();
+			}
+		}
+		
 		//Retrieve answer based on author
 		public List<Answer> readAnswersByAuthor(String author) throws SQLException {
 			String query = "SELECT * FROM Answers WHERE author = ?";
@@ -974,6 +989,7 @@ public class DatabaseHelper {
 					Answer answer = new Answer(rs.getInt("question_id"), rs.getString("author"), rs.getString("content"));
 					
 					answer.setId(rs.getInt("id"));
+
 					answers.add(answer);
 				}
 				
@@ -1553,5 +1569,7 @@ public class DatabaseHelper {
 		}
 
 	// - - - - - - - - - - - - - - - REVIEWERS METHODS END  - - - - - - - - - - - - - - - - -
+
+
 	
 }
